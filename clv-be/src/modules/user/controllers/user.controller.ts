@@ -1,5 +1,8 @@
 import { AuthenticationGuard, AuthorizationGuard } from '@auth/guards';
-import { GET_ALL_PERMISSIONS } from '@common/app.user-permission';
+import {
+  GET_ALL_PERMISSIONS,
+  UPDATE_PERMISSION_ROLE,
+} from '@common/app.user-permission';
 import { AuthReq } from '@common/common.types';
 import {
   ACTIVAVTE_USER,
@@ -13,12 +16,15 @@ import {
   Get,
   HttpCode,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { ActivateDto, PermissionDto } from '@user/dto';
 import { Permission, User } from '@user/models';
 import { PermissionService, RoleService, UserService } from '@user/services';
+import { In } from 'typeorm';
+import { EditPermissionDto } from './../dto/permission.edit.dto';
 
 @Controller('user')
 export class UserController {
@@ -79,5 +85,23 @@ export class UserController {
   @Get('list-permission')
   getListPermission(): Promise<Permission[]> {
     return this.permissionService.getAllPermission();
+  }
+
+  @HasPermission(UPDATE_PERMISSION_ROLE)
+  @UseGuards(AuthorizationGuard)
+  @UseGuards(AuthenticationGuard)
+  @Put('edit-permission-role')
+  async changePermissionRole(
+    @Body() editPermissionDto: EditPermissionDto,
+  ): Promise<void> {
+    // Check if role does exist
+    const targetListRoles = await this.roleService.searchListRoleByCondition({
+      where: { name: In(editPermissionDto.rolesName) },
+    });
+    // Then create new permission
+    await this.permissionService.editPermission(
+      editPermissionDto,
+      targetListRoles,
+    );
   }
 }

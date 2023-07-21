@@ -15,6 +15,12 @@ export type User = {
 export type Role = {
   name: string
 }
+export type Permission = {
+  name: string
+  description: string
+  roles: Role[]
+}
+
 export const getToken = (): string | null => {
   return localStorage.getItem(ACCESS_TOKEN)
 }

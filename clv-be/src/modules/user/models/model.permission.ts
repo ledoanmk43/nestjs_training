@@ -18,6 +18,7 @@ export class Permission extends AuditEntity {
   @Column({ nullable: true })
   deletedAt?: Date;
 
+  @Expose()
   @ManyToMany(() => Role, (role) => role.permissions)
   roles: Role[];
 }

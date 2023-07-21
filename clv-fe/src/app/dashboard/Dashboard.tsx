@@ -5,6 +5,7 @@ import { TbListUser } from '@components/table/TbListUser'
 import Link from 'antd/es/typography/Link'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
+import { TbListPermission } from '@components/table/TbListPermission'
 
 export const DashBoard = () => {
   const router = useRouter()
@@ -27,7 +28,13 @@ export const DashBoard = () => {
             View profile
           </Link>
           <div className='mt-10 min-h-300'>
-            <TbListUser />
+            {user.roles[0].name === 'MASTER' && (
+              <>
+                <TbListUser />
+                <hr className='my-6 text-lg' />
+                <TbListPermission />
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -50,11 +50,11 @@ export class RoleService {
 
   async searchListRoleByCondition(condition: any): Promise<Role[]> {
     try {
-      const role = await this.roleRepository.findWithRelations(condition);
-      if (role) {
-        return role;
+      const roles = await this.roleRepository.findWithRelations(condition);
+      if (roles) {
+        return roles;
       } else {
-        throw new Error('role not found');
+        throw new Error('no role found');
       }
     } catch (error) {
       Logger.error(error.message);

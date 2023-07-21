@@ -6,8 +6,8 @@ import {
   Logger,
   forwardRef,
 } from '@nestjs/common';
-import { PermissionDto } from '@user/dto';
-import { Permission } from '@user/models';
+import { EditPermissionDto, PermissionDto } from '@user/dto';
+import { Permission, Role } from '@user/models';
 import { PermissionRepository } from '@user/repositories';
 
 @Injectable()
@@ -33,9 +33,15 @@ export class PermissionService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
   async getAllPermission(): Promise<Permission[]> {
     try {
-      const listPermission = await this.permissionRepository.findAll();
+      const listPermission = await this.permissionRepository.find({
+        relations: ['roles'],
+        order: {
+          createdAt: 'ASC',
+        },
+      });
       if (listPermission) {
         return listPermission;
       } else {
@@ -44,6 +50,31 @@ export class PermissionService {
     } catch (error) {
       Logger.error(error.message);
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async editPermission(
+    editPermissionDto: EditPermissionDto,
+    targetListRoles: Role[],
+  ): Promise<void> {
+    try {
+      const permissionToUpdate: Permission =
+        await this.permissionRepository.findOne({
+          where: {
+            name: editPermissionDto.permissionName,
+          },
+          relations: ['roles'],
+        });
+
+      if (!permissionToUpdate) {
+        throw new Error('Permission not found');
+      } else {
+        permissionToUpdate.roles = targetListRoles;
+        await this.permissionRepository.save(permissionToUpdate);
+      }
+    } catch (error) {
+      Logger.error(error.message);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 }

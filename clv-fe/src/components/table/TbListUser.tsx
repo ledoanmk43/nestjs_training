@@ -39,7 +39,6 @@ export const TbListUser = () => {
           <Popconfirm
             title='Sure to process?'
             onConfirm={async () => {
-              // ChangeUserStatus(record.email)
               setIsReload(await ChangeUserStatus(record.email))
             }}
           >
@@ -69,13 +68,14 @@ export const TbListUser = () => {
       setIsReload(false)
     }
   }
+
   useEffect(() => {
     isReload && ExtractUserList()
   }, [isReload])
 
   return (
     <div>
-      <div className='flex justify-between'>
+      <div className='flex justify-between my-2'>
         All users
         <Button
           onClick={() => {

@@ -1,1 +1,2 @@
 export const GET_ALL_PERMISSIONS: string = 'GET_ALL_PERMISSIONS';
+export const UPDATE_PERMISSION_ROLE: string = 'UPDATE_PERMISSION_ROLE';

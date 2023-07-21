@@ -10,3 +10,9 @@ export const API_GET_USER_LIST = process.env
 
 export const API_CHANGE_USER_STATUS = process.env
   .NEXT_PUBLIC_API_CHANGE_USER_STATUS as RequestInfo
+
+export const API_GET_PERMISSION_LIST = process.env
+  .NEXT_PUBLIC_API_GET_PERMISSION_LIST as RequestInfo
+
+export const API_EDIT_PERMISSION_ROLE = process.env
+  .NEXT_PUBLIC_API_EDIT_PERMISSION_ROLE as RequestInfo
