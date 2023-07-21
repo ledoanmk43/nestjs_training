@@ -42,7 +42,7 @@ export async function GetUserList() {
 export async function ChangeUserStatus(email: string): Promise<boolean> {
   const token = getToken()
   const response = await fetch(DOMAIN + API_CHANGE_USER_STATUS, {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -50,9 +50,10 @@ export async function ChangeUserStatus(email: string): Promise<boolean> {
     body: JSON.stringify({ email: email }),
   })
   if (!response.ok) {
-    console.log(JSON.parse(await response.text()).message)
+    alert(JSON.parse(await response.text()).message)
     return false
   }
+  alert('Saved')
   return true
 }
 

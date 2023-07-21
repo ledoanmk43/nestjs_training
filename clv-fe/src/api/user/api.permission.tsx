@@ -18,8 +18,9 @@ export async function EditPermissionRole(
     }),
   })
   if (!response.ok) {
-    console.log(JSON.parse(await response.text()).message)
+    alert(JSON.parse(await response.text()).message)
     return false
   }
+  alert('Saved')
   return true
 }

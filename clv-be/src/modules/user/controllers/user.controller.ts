@@ -15,6 +15,8 @@ import {
   Controller,
   Get,
   HttpCode,
+  HttpException,
+  HttpStatus,
   Post,
   Put,
   Req,
@@ -45,7 +47,7 @@ export class UserController {
   @HasPermission(ACTIVAVTE_USER)
   @UseGuards(AuthorizationGuard)
   @UseGuards(AuthenticationGuard)
-  @Post('activate')
+  @Put('activate')
   activateUserById(@Body() activateDto: ActivateDto): Promise<void> {
     return this.userService.updateUserStatusById(activateDto);
   }
@@ -95,13 +97,23 @@ export class UserController {
     @Body() editPermissionDto: EditPermissionDto,
   ): Promise<void> {
     // Check if role does exist
+    if (editPermissionDto.rolesName.length < 1) {
+      throw new HttpException(
+        'Roles must not be empty',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const targetListRoles = await this.roleService.searchListRoleByCondition({
       where: { name: In(editPermissionDto.rolesName) },
     });
     // Then create new permission
-    await this.permissionService.editPermission(
-      editPermissionDto,
-      targetListRoles,
-    );
+    if (targetListRoles.length > 0) {
+      return await this.permissionService.editPermission(
+        editPermissionDto,
+        targetListRoles,
+      );
+    } else {
+      throw new HttpException('no role found', HttpStatus.BAD_REQUEST);
+    }
   }
 }

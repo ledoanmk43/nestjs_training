@@ -1,17 +1,16 @@
 import { SaveTwoTone } from '@ant-design/icons'
+import { EditPermissionRole } from '@api/user/api.permission'
 import { GetPermissionList } from '@api/user/api.user'
-import { Permission, Role, User } from '@utils/auth.provider'
-import { Button, Popconfirm, Tooltip } from 'antd'
+import { Permission, Role } from '@utils/auth.provider'
+import { Button, Select, Tooltip } from 'antd'
 import Table, { ColumnsType } from 'antd/es/table'
 import { useEffect, useState } from 'react'
-import { Select, Space } from 'antd'
-import { EditPermissionRole } from '@api/user/api.permission'
 
 const options = [{ value: 'USER' }, { value: 'ADMIN' }, { value: 'MASTER' }]
 
 export const TbListPermission = () => {
   const [isReload, setIsReload] = useState<boolean>(false)
-  const [permission, setPermissionList] = useState<Permission[]>()
+  const [permissionList, setPermissionList] = useState<Permission[]>([])
   const [rolesName, setRolesName] = useState<string[]>([])
   const columns: ColumnsType<Permission> = [
     {
@@ -29,30 +28,32 @@ export const TbListPermission = () => {
       dataIndex: 'roles',
       width: 300,
       key: 'x',
-      render: (roles: Role[], record: Permission) => (
-        <div className='flex justify-between items-center'>
-          <Select
-            mode='multiple'
-            allowClear
-            style={{ width: '90%' }}
-            placeholder='Please select'
-            defaultValue={roles.map((role) => role.name)}
-            onChange={(value) => {
-              setRolesName(value)
-              setIsReload(false)
-            }}
-            options={options}
-          />
-          <Tooltip title='Save change' placement='right'>
-            <SaveTwoTone
-              onClick={async () => {
-                setIsReload(await EditPermissionRole(record.name, rolesName))
+      render: (roles: Role[], permission: Permission) => {
+        return (
+          <div className='flex justify-between items-center'>
+            <Select
+              mode='multiple'
+              allowClear
+              style={{ width: '90%' }}
+              placeholder='Please select'
+              defaultValue={roles.map((role) => role.name)}
+              onChange={(value) => {
+                setRolesName(value)
               }}
-              className='text-lg'
+              options={options}
             />
-          </Tooltip>
-        </div>
-      ),
+            <Tooltip title='Save change' placement='right'>
+              <SaveTwoTone
+                className='text-lg'
+                onClick={async () => {
+                  await EditPermissionRole(permission.name, rolesName)
+                  setIsReload(true)
+                }}
+              />
+            </Tooltip>
+          </div>
+        )
+      },
     },
   ]
 
@@ -84,7 +85,7 @@ export const TbListPermission = () => {
       <Table
         pagination={{ pageSize: 10 }}
         columns={columns}
-        dataSource={permission}
+        dataSource={permissionList}
         rowKey='name'
       />
     </div>

@@ -34,12 +34,12 @@ export const TbListUser = () => {
       title: 'Action',
       dataIndex: 'isPending',
       key: 'x',
-      render: (isPending, record: User) => {
+      render: (isPending, user: User) => {
         return (
           <Popconfirm
             title='Sure to process?'
             onConfirm={async () => {
-              setIsReload(await ChangeUserStatus(record.email))
+              setIsReload(await ChangeUserStatus(user.email))
             }}
           >
             <Tooltip
