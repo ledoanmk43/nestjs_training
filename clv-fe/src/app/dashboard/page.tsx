@@ -1,5 +1,5 @@
-import { HomePage } from './HomePage'
+import { DashBoard } from './Dashboard'
 
 export default function Login() {
-  return <HomePage />
+  return <DashBoard />
 }

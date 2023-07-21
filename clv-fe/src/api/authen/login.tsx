@@ -1,7 +1,7 @@
-import { API_LOGIN_REQUEST } from '../../common/api'
+import { API_LOGIN_REQUEST, DOMAIN } from '@common/api'
 
 export default async function LoginUser(email: string, password: string) {
-  const response = await fetch(API_LOGIN_REQUEST, {
+  const response = await fetch(DOMAIN + API_LOGIN_REQUEST, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -13,10 +13,9 @@ export default async function LoginUser(email: string, password: string) {
   })
 
   if (!response.ok) {
-    alert(JSON.parse(await response.text()).message)
+    alert(JSON.parse(await response.text()).message.toUpperCase())
     return ''
   } else {
-    alert('Logged in')
     return JSON.parse(await response.text()).accessToken
   }
 }

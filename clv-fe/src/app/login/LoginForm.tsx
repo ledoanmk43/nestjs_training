@@ -1,15 +1,17 @@
 'use client'
+import { ACCESS_TOKEN } from '@common/constants'
+import { DASHBOARD_ROUTE } from '@common/routes'
+import { Button } from 'antd'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import LoginUser from '../../api/authen/login'
-import { ACCESS_TOKEN } from '../../common/constants'
-import { DASHBOARD_ROUTE } from '../../common/routes'
+import { useContext, useEffect, useState } from 'react'
+import { UserContext } from '../../utils/auth.provider'
 
 export const LoginForm = () => {
   const router = useRouter()
+  const { handleAuthenUser } = useContext(UserContext)
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
   const handleEmailChange = (e: any) => {
     setEmail(e.target.value)
   }
@@ -18,15 +20,9 @@ export const LoginForm = () => {
     setPassword(e.target.value)
   }
 
-  async function handleSubmit(e: any) {
+  async function onLogin(e: any) {
     e.preventDefault()
-    const accessToken: string = await LoginUser(email, password)
-    if (accessToken.length > 0) {
-      localStorage.setItem(ACCESS_TOKEN, accessToken)
-      router.push(DASHBOARD_ROUTE)
-    } else {
-      localStorage.clear()
-    }
+    handleAuthenUser(email, password)
   }
 
   useEffect(() => {
@@ -37,10 +33,7 @@ export const LoginForm = () => {
   }, [])
   return (
     <div className='flex justify-center items-center min-h-screen bg-secondColor'>
-      <form
-        className='bg-white p-8 rounded shadow-md w-300'
-        onSubmit={handleSubmit}
-      >
+      <form className='bg-white p-8 rounded shadow-md w-300'>
         <h2 className='text-2xl font-semibold text-blue-900 mb-6 text-center'>
           Login to CLV
         </h2>
@@ -75,12 +68,13 @@ export const LoginForm = () => {
           />
         </div>
         <div className='flex justify-center'>
-          <button
-            type='submit'
-            className='bg-blue-900 text-white font-semibold rounded py-2 px-4'
+          <Button
+            onClick={onLogin}
+            type='primary'
+            className='bg-blue-900 text-white font-semibold rounded'
           >
             Login
-          </button>
+          </Button>
         </div>
       </form>
     </div>

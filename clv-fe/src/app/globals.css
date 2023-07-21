@@ -18,3 +18,51 @@ svg {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* CSS Reset */
+html,
+body,
+div,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+img,
+ul,
+ol,
+li {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+}
+
+/* Optional: Set default font size and line height */
+body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Optional: Remove list styles */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Optional: Remove text-decoration from links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Optional: Set box-sizing to border-box */
+* {
+  box-sizing: border-box;
+}

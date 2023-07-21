@@ -1,9 +1,11 @@
 'use client'
+import { UserProvider } from '@/utils/auth.provider'
+import { Footer } from '@components/footer/Footer'
+import { Navbar } from '@components/navbar/Navbar'
+import StyledComponentsRegistry from '@utils/AntdRegistry'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-
-import { UserProvider } from '../utils/authenticate'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,10 +20,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <UserProvider>
-      <html lang='en'>
-        <body className={inter.className}>{children}</body>
-      </html>
-    </UserProvider>
+    <html
+      lang='en'
+      className={`${inter.className} scroll-smooth antialiased flex flex-col min-h-screen`}
+    >
+      <UserProvider>
+        <body className='flex flex-col'>
+          {/* <StyledComponentsRegistry> */}
+          <Navbar />
+          <main className='mx-20 '>{children}</main>
+          <Footer />
+          {/* </StyledComponentsRegistry> */}
+        </body>
+      </UserProvider>
+    </html>
   )
 }
