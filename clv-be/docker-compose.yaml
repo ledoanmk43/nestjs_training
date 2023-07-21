@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  dev-database:
+    image: postgres:15.0
+    container_name: clv-training
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: A1231230
+      POSTGRES_DB: trainingdb
+    networks:
+      - training-user
+networks:
+  training-user:

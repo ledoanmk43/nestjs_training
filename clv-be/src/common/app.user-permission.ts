@@ -1,0 +1,1 @@
+export const GET_ALL_PERMISSIONS: string = 'GET_ALL_PERMISSIONS';
