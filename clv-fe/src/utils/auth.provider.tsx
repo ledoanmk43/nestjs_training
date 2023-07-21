@@ -23,14 +23,14 @@ interface UserContextValue {
   user: User | null
   setUser: (user: User | null) => void
   handleAuthenUser: (email: string, password: string) => void
-  clearUser: () => void
+  handleClearUser: () => void
 }
 
 export const UserContext = createContext<UserContextValue>({
   user: null,
   setUser: () => {},
   handleAuthenUser: () => {},
-  clearUser: () => {},
+  handleClearUser: () => {},
 })
 
 interface UserProviderProps {
@@ -47,8 +47,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (data) {
       setUser(data)
     } else {
-      alert(`Unauthorized with error ${data}`)
-      router.push(LOGIN_ROUTE)
+      handleClearUser()
     }
   }
 
@@ -63,7 +62,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
-  function clearUser() {
+  function handleClearUser() {
     localStorage.clear()
     setUser(null)
     router.push(LOGIN_ROUTE)
@@ -80,7 +79,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ user, setUser, handleAuthenUser, clearUser }}
+      value={{ user, setUser, handleAuthenUser, handleClearUser }}
     >
       {children}
     </UserContext.Provider>

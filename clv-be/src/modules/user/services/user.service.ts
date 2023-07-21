@@ -58,7 +58,9 @@ export class UserService {
 
   async updateUserStatusById(activateDto: ActivateDto): Promise<void> {
     try {
-      const user = await this.searchUserById(activateDto.id);
+      const user = await this.searchUserByCondition({
+        where: { email: activateDto.email },
+      });
       if (user) {
         await this.userRepository
           .createQueryBuilder()
@@ -67,7 +69,7 @@ export class UserService {
             isDisable: !user.isDisable,
             isPending: !user.isPending,
           })
-          .where('id = :id', { id: activateDto.id })
+          .where('id = :id', { id: user.id })
           .execute();
       } else {
         throw new Error('user not found');
@@ -80,7 +82,11 @@ export class UserService {
 
   async getAllUsers(): Promise<User[]> {
     try {
-      const listUser = await this.userRepository.findAll();
+      const listUser = await this.userRepository.find({
+        order: {
+          createdAt: 'ASC',
+        },
+      });
       if (listUser) {
         return listUser;
       } else {

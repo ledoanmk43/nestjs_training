@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class ActivateDto {
-  @IsUUID()
+  @IsEmail()
   @IsNotEmpty()
-  id: string;
+  email: string;
 }

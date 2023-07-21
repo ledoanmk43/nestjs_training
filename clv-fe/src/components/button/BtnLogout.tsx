@@ -3,9 +3,9 @@ import { Button } from 'antd'
 import { useContext } from 'react'
 
 export const BtnLogout = () => {
-  const { clearUser } = useContext(UserContext)
+  const { handleClearUser } = useContext(UserContext)
   function logOut() {
-    clearUser()
+    handleClearUser()
   }
   return (
     <Button
