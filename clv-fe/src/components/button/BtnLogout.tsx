@@ -4,12 +4,10 @@ import { useContext } from 'react'
 
 export const BtnLogout = () => {
   const { handleClearUser } = useContext(UserContext)
-  function logOut() {
-    handleClearUser()
-  }
+
   return (
     <Button
-      onClick={logOut}
+      onClick={() => handleClearUser()}
       className='bg-red-400 text-white font-semibold rounded py-1 px-4'
       type='primary'
     >

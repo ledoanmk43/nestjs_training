@@ -26,7 +26,7 @@ import { ActivateDto, PermissionDto } from '@user/dto';
 import { Permission, User } from '@user/models';
 import { PermissionService, RoleService, UserService } from '@user/services';
 import { In } from 'typeorm';
-import { EditPermissionDto } from './../dto/permission.edit.dto';
+import { EditPermissionDto } from '@user/dto/permission.edit.dto';
 
 @Controller('user')
 export class UserController {

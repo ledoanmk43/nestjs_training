@@ -1,18 +1,29 @@
 'use client'
+import { RegisterParams } from '@api/authen/register'
 import { ACCESS_TOKEN } from '@common/constants'
-import { DASHBOARD_ROUTE, REGISTER_ROUTE } from '@common/routes'
+import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@common/routes'
+import { UserContext } from '@utils/auth.provider'
 import { Button } from 'antd'
+import Link from 'antd/es/typography/Link'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
-import { UserContext } from '@utils/auth.provider'
-import Link from 'antd/es/typography/Link'
 
-export const LoginForm = () => {
+export const RegisterForm = () => {
   const router = useRouter()
   const { handleAuthenUser } = useContext(UserContext)
+  const [firstName, setFirstName] = useState<string>('')
+  const [lastName, setLastName] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const handleFirstNameChange = (e: any) => {
+    setFirstName(e.target.value)
+  }
+
+  const handleLastNameChange = (e: any) => {
+    setLastName(e.target.value)
+  }
+
   const handleEmailChange = (e: any) => {
     setEmail(e.target.value)
   }
@@ -21,9 +32,15 @@ export const LoginForm = () => {
     setPassword(e.target.value)
   }
 
-  async function onLogin(e: any) {
+  async function onRegister(e: any) {
     e.preventDefault()
-    handleAuthenUser(email, password)
+    const newUser: RegisterParams = {
+      firstName,
+      lastName,
+      email,
+      password,
+    }
+    handleAuthenUser('', '', newUser)
   }
 
   useEffect(() => {
@@ -32,15 +49,46 @@ export const LoginForm = () => {
       router.push(DASHBOARD_ROUTE)
     }
   }, [])
+
   return (
     <div className='flex justify-center items-center min-h-screen bg-secondColor'>
       <form className='bg-white p-8 rounded shadow-md w-350'>
         <h2 className='text-2xl font-semibold text-blue-900 mb-2 text-center'>
-          Login to CLV
+          Register to CLV
         </h2>
         <p className='text-md text-blue-900 mb-6 text-center'>
-          Don't have an account? <Link href={REGISTER_ROUTE}>Register now</Link>
+          Have an account? <Link href={LOGIN_ROUTE}>Sign in</Link>
         </p>
+        <div className='mb-4'>
+          <label
+            htmlFor='firstName'
+            className='text-sm block mb-2 required:border-red-500'
+          >
+            First name
+          </label>
+          <input
+            type='text'
+            id='firstName'
+            className='w-full border rounded px-3 py-2'
+            value={firstName}
+            onChange={handleFirstNameChange}
+          />
+        </div>
+        <div className='mb-4'>
+          <label
+            htmlFor='lastName'
+            className='text-sm block mb-2 required:border-red-500'
+          >
+            Last name
+          </label>
+          <input
+            type='text'
+            id='lastName'
+            className='w-full border rounded px-3 py-2'
+            value={lastName}
+            onChange={handleLastNameChange}
+          />
+        </div>
         <div className='mb-4'>
           <label
             htmlFor='email'
@@ -73,11 +121,11 @@ export const LoginForm = () => {
         </div>
         <div className='flex justify-center'>
           <Button
-            onClick={onLogin}
+            onClick={onRegister}
             type='primary'
             className='bg-blue-900 text-white font-semibold rounded'
           >
-            Login
+            Register
           </Button>
         </div>
       </form>

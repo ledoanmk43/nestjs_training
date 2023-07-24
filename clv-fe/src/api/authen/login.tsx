@@ -1,6 +1,6 @@
 import { API_LOGIN_REQUEST, DOMAIN } from '@common/api'
 
-export default async function LoginUser(email: string, password: string) {
+export default async function LoginUserAPI(email: string, password: string) {
   const response = await fetch(DOMAIN + API_LOGIN_REQUEST, {
     method: 'POST',
     headers: {

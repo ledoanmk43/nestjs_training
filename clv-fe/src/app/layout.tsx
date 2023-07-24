@@ -26,11 +26,11 @@ export default function RootLayout({
     >
       <UserProvider>
         <body className='flex flex-col'>
-          <StyledComponentsRegistry>
-            <Navbar />
-            <main className='mx-20 '>{children}</main>
-            <Footer />
-          </StyledComponentsRegistry>
+          {/* <StyledComponentsRegistry> */}
+          <Navbar />
+          <main className='mx-20 '>{children}</main>
+          <Footer />
+          {/* </StyledComponentsRegistry> */}
         </body>
       </UserProvider>
     </html>

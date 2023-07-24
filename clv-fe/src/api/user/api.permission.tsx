@@ -1,7 +1,7 @@
 import { API_EDIT_PERMISSION_ROLE, DOMAIN } from '@common/api'
 import { getToken } from '@utils/auth.provider'
 
-export async function EditPermissionRole(
+export async function EditPermissionRoleAPI(
   permissionName: string,
   rolesName: string[]
 ): Promise<boolean> {

@@ -1,8 +1,7 @@
-import { SaveTwoTone } from '@ant-design/icons'
-import { EditPermissionRole } from '@api/user/api.permission'
-import { GetPermissionList } from '@api/user/api.user'
+import { GetPermissionListAPI } from '@api/user/api.user'
+import PermissionSelect from '@components/select/PermissionSelect'
 import { Permission, Role } from '@utils/auth.provider'
-import { Button, Select, Tooltip } from 'antd'
+import { Button, Input } from 'antd'
 import Table, { ColumnsType } from 'antd/es/table'
 import { useEffect, useState } from 'react'
 
@@ -11,7 +10,16 @@ const options = [{ value: 'USER' }, { value: 'ADMIN' }, { value: 'MASTER' }]
 export const TbListPermission = () => {
   const [isReload, setIsReload] = useState<boolean>(false)
   const [permissionList, setPermissionList] = useState<Permission[]>([])
-  const [rolesName, setRolesName] = useState<string[]>([])
+
+  const [searchText, setSearchText] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const filteredData = searchText
+    ? permissionList.filter((permission) =>
+        permission.name.toUpperCase().includes(searchText.toUpperCase())
+      )
+    : permissionList
+
   const columns: ColumnsType<Permission> = [
     {
       title: 'Name',
@@ -27,31 +35,13 @@ export const TbListPermission = () => {
       title: 'Roles',
       dataIndex: 'roles',
       width: 300,
-      key: 'x',
       render: (roles: Role[], permission: Permission) => {
         return (
-          <div className='flex justify-between items-center'>
-            <Select
-              mode='multiple'
-              allowClear
-              style={{ width: '90%' }}
-              placeholder='Please select'
-              defaultValue={roles.map((role) => role.name)}
-              onChange={(value) => {
-                setRolesName(value)
-              }}
-              options={options}
-            />
-            <Tooltip title='Save change' placement='right'>
-              <SaveTwoTone
-                className='text-lg'
-                onClick={async () => {
-                  await EditPermissionRole(permission.name, rolesName)
-                  setIsReload(true)
-                }}
-              />
-            </Tooltip>
-          </div>
+          <PermissionSelect
+            roles={roles}
+            permission={permission}
+            setIsReload={setIsReload}
+          />
         )
       },
     },
@@ -59,11 +49,13 @@ export const TbListPermission = () => {
 
   // Currently API to get list of users does not support Pagination
   async function ExtractPermissionList() {
-    const data = await GetPermissionList()
+    setIsLoading(true)
+    const data = await GetPermissionListAPI()
     if (data) {
       setPermissionList(data)
-      setIsReload(false)
     }
+    setIsReload(false)
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -71,21 +63,30 @@ export const TbListPermission = () => {
   }, [isReload])
 
   return (
-    <div>
+    <div className='mt-10 min-h-[58vh]'>
       <div className='flex justify-between my-2'>
         All permissions
-        <Button
-          onClick={() => {
-            setIsReload(true)
-          }}
-        >
-          Retrieve
-        </Button>
+        <div>
+          <Input
+            className='w-48 h-8 mr-10'
+            placeholder='Search by name'
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <Button
+            onClick={() => {
+              setIsReload(true)
+            }}
+          >
+            Retrieve
+          </Button>
+        </div>
       </div>
       <Table
-        pagination={{ pageSize: 10 }}
+        loading={isLoading}
+        pagination={{ pageSize: 6 }}
         columns={columns}
-        dataSource={permissionList}
+        dataSource={filteredData}
         rowKey='name'
       />
     </div>

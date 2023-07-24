@@ -1,10 +1,11 @@
 'use client'
-import { GetUserProfile } from '@/api/user/api.user'
-import LoginUser from '@api/authen/login'
+import { GetUserProfileAPI } from '@/api/user/api.user'
+import LoginUserAPI from '@api/authen/login'
 import { ACCESS_TOKEN } from '@common/constants'
-import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@common/routes'
-import { useRouter } from 'next/navigation'
+import { DASHBOARD_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@common/routes'
+import { useRouter, usePathname } from 'next/navigation'
 import { ReactNode, createContext, useEffect, useState } from 'react'
+import RegisterUserAPI, { RegisterParams } from '../api/authen/register'
 
 export type User = {
   email: string
@@ -28,7 +29,11 @@ export const getToken = (): string | null => {
 interface UserContextValue {
   user: User | null
   setUser: (user: User | null) => void
-  handleAuthenUser: (email: string, password: string) => void
+  handleAuthenUser: (
+    email: string,
+    password: string,
+    registerParams?: RegisterParams
+  ) => void
   handleClearUser: () => void
 }
 
@@ -45,11 +50,12 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const router = useRouter()
+  const pathname = usePathname()
   const [user, setUser] = useState<User | null>(null)
   const [accessToken, setAccessToken] = useState<string | null>(getToken())
 
   async function GetProfile() {
-    const data = await GetUserProfile()
+    const data = await GetUserProfileAPI()
     if (data) {
       setUser(data)
     } else {
@@ -57,8 +63,18 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
-  async function handleAuthenUser(email: string, password: string) {
-    const accessToken: string = await LoginUser(email, password)
+  async function handleAuthenUser(
+    email: string,
+    password: string,
+    registerParams?: RegisterParams
+  ) {
+    let accessToken: string = ''
+    if (registerParams) {
+      accessToken = await RegisterUserAPI(registerParams)
+    } else {
+      accessToken = await LoginUserAPI(email, password)
+    }
+
     if (accessToken.length > 0) {
       setAccessToken(accessToken)
       localStorage.setItem(ACCESS_TOKEN, accessToken)
@@ -78,7 +94,9 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (accessToken) {
       GetProfile()
     } else {
-      alert('Unauthorized')
+      if (pathname === REGISTER_ROUTE) {
+        return
+      }
       router.push(LOGIN_ROUTE)
     }
   }, [accessToken])

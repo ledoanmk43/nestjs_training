@@ -7,7 +7,7 @@ import {
 } from '@common/api'
 import { getToken } from '@utils/auth.provider'
 
-export async function GetUserProfile() {
+export async function GetUserProfileAPI() {
   const token = getToken()
   const response = await fetch(DOMAIN + API_GET_USER, {
     method: 'GET',
@@ -23,7 +23,7 @@ export async function GetUserProfile() {
   }
 }
 
-export async function GetUserList() {
+export async function GetUserListAPI() {
   const token = getToken()
   const response = await fetch(DOMAIN + API_GET_USER_LIST, {
     method: 'GET',
@@ -39,7 +39,7 @@ export async function GetUserList() {
   }
 }
 
-export async function ChangeUserStatus(email: string): Promise<boolean> {
+export async function ChangeUserStatusAPI(email: string): Promise<boolean> {
   const token = getToken()
   const response = await fetch(DOMAIN + API_CHANGE_USER_STATUS, {
     method: 'PUT',
@@ -57,7 +57,7 @@ export async function ChangeUserStatus(email: string): Promise<boolean> {
   return true
 }
 
-export async function GetPermissionList() {
+export async function GetPermissionListAPI() {
   const token = getToken()
   const response = await fetch(DOMAIN + API_GET_PERMISSION_LIST, {
     method: 'GET',
@@ -65,6 +65,7 @@ export async function GetPermissionList() {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
+    // next: { revalidate: 2 },
   })
   if (!response.ok) {
     console.log(JSON.parse(await response.text()).message)

@@ -1,11 +1,11 @@
 'use client'
 import { UserContext, getToken } from '@/utils/auth.provider'
 import { LOGIN_ROUTE, PROFILE_ROUTE } from '@common/routes'
+import { TbListPermission } from '@components/table/TbListPermission'
 import { TbListUser } from '@components/table/TbListUser'
 import Link from 'antd/es/typography/Link'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
-import { TbListPermission } from '@components/table/TbListPermission'
 
 export const DashBoard = () => {
   const router = useRouter()
@@ -27,7 +27,7 @@ export const DashBoard = () => {
           <Link className='text-lg' href={PROFILE_ROUTE}>
             View profile
           </Link>
-          <div className='mt-10 min-h-300'>
+          <div className='mt-10 min-w-[54vw]'>
             {user.roles[0].name === 'MASTER' && (
               <>
                 <TbListUser />

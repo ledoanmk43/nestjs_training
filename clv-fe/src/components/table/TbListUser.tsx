@@ -1,12 +1,21 @@
-import { ChangeUserStatus, GetUserList } from '@api/user/api.user'
+import { ChangeUserStatusAPI, GetUserListAPI } from '@api/user/api.user'
 import { Role, User } from '@utils/auth.provider'
-import { Button, Popconfirm, Tooltip } from 'antd'
+import { Button, Input, Popconfirm, Tooltip } from 'antd'
 import Table, { ColumnsType } from 'antd/es/table'
 import { useEffect, useState } from 'react'
 
 export const TbListUser = () => {
   const [isReload, setIsReload] = useState<boolean>(false)
   const [userList, setUserList] = useState<User[]>()
+  const [searchText, setSearchText] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const filteredData = searchText
+    ? userList?.filter((user) =>
+        user.email.toUpperCase().includes(searchText.toUpperCase())
+      )
+    : userList
+
   const columns: ColumnsType<User> = [
     {
       title: 'First Name',
@@ -26,32 +35,30 @@ export const TbListUser = () => {
     {
       title: 'Role',
       dataIndex: 'roles',
-      key: 'roles',
       render: (roles) => roles.map((role: Role) => role.name).join(),
       width: 100,
     },
     {
       title: 'Action',
       dataIndex: 'isPending',
-      key: 'x',
       render: (isPending, user: User) => {
         return (
           <Popconfirm
             title='Sure to process?'
             onConfirm={async () => {
-              setIsReload(await ChangeUserStatus(user.email))
+              setIsReload(await ChangeUserStatusAPI(user.email))
             }}
           >
             <Tooltip
               title={
-                isPending
+                !isPending
                   ? 'Click to de-activate this user'
                   : 'Click to activate this user'
               }
               placement='right'
             >
-              <a className={isPending ? 'text-green-500' : 'text-red-500'}>
-                {isPending ? 'Active' : 'Inactive'}
+              <a className={!isPending ? 'text-green-500' : 'text-red-500'}>
+                {!isPending ? 'Active' : 'Inactive'}
               </a>
             </Tooltip>
           </Popconfirm>
@@ -62,11 +69,15 @@ export const TbListUser = () => {
 
   // Currently API to get list of users does not support Pagination
   async function ExtractUserList() {
-    const data = await GetUserList()
+    setIsLoading(true)
+    const data = await GetUserListAPI()
     if (data) {
       setUserList(data)
-      setIsReload(false)
+    } else {
+      setUserList([])
     }
+    setIsReload(false)
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -74,21 +85,31 @@ export const TbListUser = () => {
   }, [isReload])
 
   return (
-    <div>
+    <div className='min-h-[50vh]'>
       <div className='flex justify-between my-2'>
         All users
-        <Button
-          onClick={() => {
-            setIsReload(true)
-          }}
-        >
-          Retrieve
-        </Button>
+        <div>
+          <Input
+            className='w-48 h-8 mr-10'
+            placeholder='Search by email'
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <Button
+            onClick={() => {
+              setIsReload(true)
+            }}
+          >
+            Retrieve
+          </Button>
+        </div>
       </div>
+
       <Table
-        pagination={{ pageSize: 10 }}
+        loading={isLoading}
+        pagination={{ pageSize: 6 }}
         columns={columns}
-        dataSource={userList}
+        dataSource={filteredData}
         rowKey='email'
       />
     </div>
