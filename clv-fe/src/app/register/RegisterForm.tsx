@@ -8,6 +8,12 @@ import Link from 'antd/es/typography/Link'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'CLV register',
+  description: 'CLV Training bootcamp',
+}
 export const RegisterForm = () => {
   const router = useRouter()
   const { handleAuthenUser } = useContext(UserContext)

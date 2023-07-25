@@ -6,7 +6,12 @@ import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '@utils/auth.provider'
 import Link from 'antd/es/typography/Link'
+import { Metadata } from 'next'
 
+export const metadata: Metadata = {
+  title: 'CLV login',
+  description: 'CLV Training bootcamp',
+}
 export const LoginForm = () => {
   const router = useRouter()
   const { handleAuthenUser } = useContext(UserContext)

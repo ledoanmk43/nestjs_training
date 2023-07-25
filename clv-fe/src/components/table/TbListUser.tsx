@@ -30,6 +30,7 @@ export const TbListUser = () => {
     {
       title: 'Email',
       dataIndex: 'email',
+      key: 'email',
       width: 400,
     },
     {
@@ -82,7 +83,7 @@ export const TbListUser = () => {
 
   useEffect(() => {
     isReload && ExtractUserList()
-  }, [isReload])
+  }, [isReload, userList])
 
   return (
     <div className='min-h-[50vh]'>
@@ -90,12 +91,13 @@ export const TbListUser = () => {
         All users
         <div>
           <Input
-            className='w-48 h-8 mr-10'
+            className='w-48 h-8 mx-2'
             placeholder='Search by email'
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
           <Button
+            className='ml-2'
             onClick={() => {
               setIsReload(true)
             }}

@@ -10,20 +10,22 @@ interface PermissionSelectProps {
   roles: Role[]
   permission: Permission
   setIsReload: React.Dispatch<React.SetStateAction<boolean>>
+  // isBtnNewClicked: boolean
 }
 
 const PermissionSelect: React.FC<PermissionSelectProps> = ({
   roles,
   permission,
   setIsReload,
+  // isBtnNewClicked,
 }) => {
-  const [rolesName, setRolesName] = useState<string[]>(
-    permission.roles.map((role) => role.name)
-  )
+  const [rolesName, setRolesName] = useState<string[]>([])
+  const initialRoles = roles.map((role) => role.name)
 
-  const [isReloading, setIsReloading] = useState<boolean>(false)
-  useEffect(() => {}, [isReloading, permission])
-  console.log(permission.roles.map((role) => role.name))
+  useEffect(() => {
+    setRolesName(initialRoles)
+  }, [roles])
+
   return (
     <div className='flex justify-between items-center'>
       <Select
@@ -31,7 +33,7 @@ const PermissionSelect: React.FC<PermissionSelectProps> = ({
         key={permission.name}
         className='min-w-[90%]'
         placeholder='Please select'
-        defaultValue={rolesName}
+        value={rolesName}
         onChange={(value) => {
           setRolesName(value)
         }}
@@ -43,12 +45,10 @@ const PermissionSelect: React.FC<PermissionSelectProps> = ({
           onClick={async () => {
             if (rolesName.length > 0) {
               await EditPermissionRoleAPI(permission.name, rolesName)
-              setIsReload(true)
             } else {
-              setIsReload(true)
               alert('This field should not be empty')
             }
-            setIsReloading(true)
+            setIsReload(true)
           }}
         />
       </Tooltip>

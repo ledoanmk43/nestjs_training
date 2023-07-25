@@ -1,6 +1,12 @@
 'use client'
 import { UserContext, getToken } from '@/utils/auth.provider'
+import { Metadata } from 'next'
 import { useContext, useEffect, useState } from 'react'
+
+export const metadata: Metadata = {
+  title: 'CLV profile',
+  description: 'CLV Training bootcamp',
+}
 
 export const UserProfile = () => {
   const { user } = useContext(UserContext)

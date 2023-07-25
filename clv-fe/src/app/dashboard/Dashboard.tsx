@@ -4,9 +4,14 @@ import { LOGIN_ROUTE, PROFILE_ROUTE } from '@common/routes'
 import { TbListPermission } from '@components/table/TbListPermission'
 import { TbListUser } from '@components/table/TbListUser'
 import Link from 'antd/es/typography/Link'
+import { Metadata } from 'next'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 
+export const metadata: Metadata = {
+  title: 'CLV dashboard',
+  description: 'CLV Training bootcamp',
+}
 export const DashBoard = () => {
   const router = useRouter()
   const { user } = useContext(UserContext)
@@ -27,7 +32,7 @@ export const DashBoard = () => {
           <Link className='text-lg' href={PROFILE_ROUTE}>
             View profile
           </Link>
-          <div className='mt-10 min-w-[54vw]'>
+          <div className='mt-10 min-w-[60vw]'>
             {user.roles[0].name === 'MASTER' && (
               <>
                 <TbListUser />

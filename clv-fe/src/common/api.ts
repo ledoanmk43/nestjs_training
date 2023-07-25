@@ -19,3 +19,6 @@ export const API_GET_PERMISSION_LIST = process.env
 
 export const API_EDIT_PERMISSION_ROLE = process.env
   .NEXT_PUBLIC_API_EDIT_PERMISSION_ROLE as RequestInfo
+
+export const API_CREATE_PERMISSION = process.env
+  .NEXT_PUBLIC_API_CREATE_PERMISSION as RequestInfo

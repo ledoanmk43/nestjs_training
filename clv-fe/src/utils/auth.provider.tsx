@@ -5,7 +5,8 @@ import { ACCESS_TOKEN } from '@common/constants'
 import { DASHBOARD_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@common/routes'
 import { useRouter, usePathname } from 'next/navigation'
 import { ReactNode, createContext, useEffect, useState } from 'react'
-import RegisterUserAPI, { RegisterParams } from '../api/authen/register'
+import RegisterUserAPI, { RegisterParams } from '@api/authen/register'
+import { v4 as uuidv4 } from 'uuid'
 
 export type User = {
   email: string
@@ -17,6 +18,7 @@ export type Role = {
   name: string
 }
 export type Permission = {
+  id: string
   name: string
   description: string
   roles: Role[]

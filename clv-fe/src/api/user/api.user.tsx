@@ -1,6 +1,5 @@
 import {
   API_CHANGE_USER_STATUS,
-  API_GET_PERMISSION_LIST,
   API_GET_USER,
   API_GET_USER_LIST,
   DOMAIN,
@@ -32,6 +31,7 @@ export async function GetUserListAPI() {
       Authorization: `Bearer ${token}`,
     },
   })
+
   if (!response.ok) {
     console.log(JSON.parse(await response.text()).message)
   } else {
@@ -55,21 +55,4 @@ export async function ChangeUserStatusAPI(email: string): Promise<boolean> {
   }
   alert('Saved')
   return true
-}
-
-export async function GetPermissionListAPI() {
-  const token = getToken()
-  const response = await fetch(DOMAIN + API_GET_PERMISSION_LIST, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    // next: { revalidate: 2 },
-  })
-  if (!response.ok) {
-    console.log(JSON.parse(await response.text()).message)
-  } else {
-    return JSON.parse(await response.text())
-  }
 }
