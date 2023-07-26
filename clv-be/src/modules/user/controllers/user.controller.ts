@@ -23,10 +23,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ActivateDto, PermissionDto } from '@user/dto';
+import { EditPermissionDto } from '@user/dto/permission.edit.dto';
 import { Permission, User } from '@user/models';
 import { PermissionService, RoleService, UserService } from '@user/services';
 import { In } from 'typeorm';
-import { EditPermissionDto } from '@user/dto/permission.edit.dto';
 
 @Controller('user')
 export class UserController {
@@ -66,8 +66,8 @@ export class UserController {
   @Post('new-permission')
   async createPermission(@Body() permissionDto: PermissionDto): Promise<void> {
     // Check if role does exist
-    const role = await this.roleService.searchRoleByCondition({
-      where: { id: permissionDto.roleId },
+    const roles = await this.roleService.searchListRoleByCondition({
+      where: { name: In(permissionDto.rolesName) },
       relations: ['permissions'],
     });
     // Then create new permission
@@ -75,9 +75,9 @@ export class UserController {
       permissionDto,
     );
     // Update relationship between Role and Permission
-    if (role) {
-      role.permissions.push(permission);
-      await this.roleService.addRole(role);
+    if (roles && permission) {
+      roles.map((role) => role.permissions.push(permission));
+      await this.roleService.addListRoles(roles);
     }
   }
 

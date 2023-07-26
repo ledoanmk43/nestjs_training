@@ -1,12 +1,12 @@
 'use client'
 import { GetUserProfileAPI } from '@/api/user/api.user'
 import LoginUserAPI from '@api/authen/login'
+import RegisterUserAPI, { RegisterParams } from '@api/authen/register'
 import { ACCESS_TOKEN } from '@common/constants'
 import { DASHBOARD_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@common/routes'
-import { useRouter, usePathname } from 'next/navigation'
+import { ActionType } from '@components/select/PermissionSelect'
+import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, createContext, useEffect, useState } from 'react'
-import RegisterUserAPI, { RegisterParams } from '@api/authen/register'
-import { v4 as uuidv4 } from 'uuid'
 
 export type User = {
   email: string
@@ -18,6 +18,7 @@ export type Role = {
   name: string
 }
 export type Permission = {
+  action: ActionType
   id: string
   name: string
   description: string

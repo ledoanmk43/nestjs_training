@@ -1,9 +1,8 @@
-import { IsNotEmpty, IsUUID, IsUppercase } from 'class-validator';
+import { IsNotEmpty, IsUppercase } from 'class-validator';
 
 export class PermissionDto {
   @IsNotEmpty()
-  @IsUUID()
-  roleId: string;
+  rolesName: string[];
 
   @IsNotEmpty()
   @IsUppercase()
@@ -11,4 +10,6 @@ export class PermissionDto {
 
   @IsNotEmpty()
   description: string;
+
+  rolesIds: string[];
 }

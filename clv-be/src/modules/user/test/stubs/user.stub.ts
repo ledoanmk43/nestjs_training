@@ -48,7 +48,7 @@ export const permissionStub = (): Permission => {
 
 export const permissionDtoStub = (): PermissionDto => {
   const permission: PermissionDto = new PermissionDto();
-  permission.roleId = mockedId;
+  permission.rolesName = [mockedId];
   permission.description = 'test description';
   permission.name = 'USER';
 

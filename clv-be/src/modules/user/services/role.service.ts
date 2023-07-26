@@ -48,6 +48,23 @@ export class RoleService {
     }
   }
 
+  async addListRoles(rolesDto: Role[]): Promise<Role[]> {
+    try {
+      const roles = await this.roleRepository.save(rolesDto);
+      if (roles) {
+        return roles;
+      } else {
+        throw new Error('Fail to save');
+      }
+    } catch (error) {
+      Logger.error(error.message);
+      if (error.message.includes('duplicate key')) {
+        throw new HttpException('Role is already taken', HttpStatus.CONFLICT);
+      }
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async searchListRoleByCondition(condition: any): Promise<Role[]> {
     try {
       const roles = await this.roleRepository.findWithRelations(condition);

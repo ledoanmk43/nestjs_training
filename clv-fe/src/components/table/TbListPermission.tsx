@@ -1,18 +1,22 @@
 import { GetPermissionListAPI } from '@api/user/api.permission'
-import IptPermission from '@components/input/IptPermission'
-import PermissionSelect from '@components/select/PermissionSelect'
+import PermissionField from '@/components/input/PermissionField'
+import PermissionSelect, {
+  ActionType,
+} from '@components/select/PermissionSelect'
 import { Permission, Role } from '@utils/auth.provider'
-import { Button, Input } from 'antd'
+import { Button, Form, Input } from 'antd'
 import Table, { ColumnsType } from 'antd/es/table'
 import { useEffect, useState } from 'react'
 
 export const TbListPermission = () => {
+  const [form] = Form.useForm()
   const [isReload, setIsReload] = useState<boolean>(false)
   const [permissionList, setPermissionList] = useState<Permission[]>([])
   const [searchText, setSearchText] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isBtnNewClicked, setIsBtnNewClicked] = useState<boolean>(false)
-
+  const [editingRow, setEditingRow] = useState<string>('')
+  const [nameField, setNameField] = useState<string>('')
+  const [descriptionField, setDescriptionField] = useState<string>('')
   const filteredData = searchText
     ? permissionList.filter((permission) =>
         permission.name.toUpperCase().includes(searchText.toUpperCase())
@@ -21,31 +25,49 @@ export const TbListPermission = () => {
 
   const columns: ColumnsType<Permission> = [
     {
+      title: 'action',
+      dataIndex: 'action',
+      render: (_, record) => {
+        if (editingRow === record.id) {
+          return <p>INSERT</p>
+        } else {
+          return <p>UPDATE</p>
+        }
+      },
+    },
+    {
       title: 'Name',
       dataIndex: 'name',
-      key: 'name',
       width: 220,
-      render: (text, permission: Permission) => (
-        <IptPermission
-          name='name'
-          text={text}
-          permission={permission}
-          isBtnNewClicked={isBtnNewClicked}
-        />
-      ),
+      render: (text, record) => {
+        if (editingRow === record.id) {
+          return (
+            <PermissionField
+              setField={setNameField}
+              value={nameField.toUpperCase()}
+            />
+          )
+        } else {
+          return <p>{text}</p>
+        }
+      },
     },
     {
       title: 'Description',
       dataIndex: 'description',
       width: 400,
-      render: (text, permission: Permission) => (
-        <IptPermission
-          name='description'
-          text={text}
-          permission={permission}
-          isBtnNewClicked={isBtnNewClicked}
-        />
-      ),
+      render: (text, permission: Permission) => {
+        if (editingRow === permission.id) {
+          return (
+            <PermissionField
+              setField={setDescriptionField}
+              value={descriptionField}
+            />
+          )
+        } else {
+          return <p>{text}</p>
+        }
+      },
     },
     {
       title: 'Roles',
@@ -54,7 +76,8 @@ export const TbListPermission = () => {
       render: (roles: Role[], permission: Permission) => {
         return (
           <PermissionSelect
-            // isBtnNewClicked={isBtnNewClicked}
+            rowData={...[nameField.toUpperCase(), descriptionField]}
+            action={permission.action}
             roles={roles}
             permission={permission}
             setIsReload={setIsReload}
@@ -83,9 +106,10 @@ export const TbListPermission = () => {
       name: '',
       description: '',
       roles: [],
+      action: 'INSERT',
     }
-    setIsBtnNewClicked(true)
     setPermissionList([newPermission, ...permissionList])
+    setEditingRow(newPermission.id)
   }
 
   useEffect(() => {
@@ -107,7 +131,6 @@ export const TbListPermission = () => {
             className='mx-2'
             onClick={() => {
               setIsReload(true)
-              setIsBtnNewClicked(false)
             }}
           >
             Retrieve
@@ -117,13 +140,16 @@ export const TbListPermission = () => {
           </Button>
         </div>
       </div>
-      <Table
-        loading={isLoading}
-        pagination={{ pageSize: 6 }}
-        columns={columns}
-        dataSource={filteredData}
-        rowKey='name'
-      />
+      <Form form={form}>
+        <Table
+          bordered
+          loading={isLoading}
+          pagination={{ pageSize: 6 }}
+          columns={columns.filter((col) => col.title !== 'action')}
+          dataSource={filteredData}
+          rowKey='name'
+        />
+      </Form>
     </div>
   )
 }

@@ -21,7 +21,6 @@
       "@src/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
       "@configs/*": ["src/configs/*"],
-      "@repositories/*": ["src/repositories/*"],
       "@common/*": ["src/common/*"],
       "@decorators/*": ["src/decorators/*"],
       "@interceptors/*": ["src/interceptors/*"],

@@ -16,11 +16,12 @@ export async function GetPermissionListAPI() {
     },
   })
   if (!response.ok) {
-    console.log(JSON.parse(await response.text()).message)
+    alert(JSON.parse(await response.text()).message)
   } else {
     return JSON.parse(await response.text())
   }
 }
+
 export async function EditPermissionRoleAPI(
   permissionName: string,
   rolesName: string[]
@@ -45,9 +46,14 @@ export async function EditPermissionRoleAPI(
   return true
 }
 
-export async function CreatePermissionAPI(
-  permissionName: string,
+export type NewPermissionParams = {
+  name: string
+  description: string
   rolesName: string[]
+}
+
+export async function CreatePermissionAPI(
+  params: NewPermissionParams
 ): Promise<boolean> {
   const token = getToken()
   const response = await fetch(DOMAIN + API_CREATE_PERMISSION, {
@@ -57,8 +63,9 @@ export async function CreatePermissionAPI(
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
-      rolesName: rolesName,
-      permissionName: permissionName,
+      name: params.name,
+      description: params.description,
+      rolesName: params.rolesName,
     }),
   })
   if (!response.ok) {

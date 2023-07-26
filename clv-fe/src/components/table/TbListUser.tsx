@@ -106,8 +106,8 @@ export const TbListUser = () => {
           </Button>
         </div>
       </div>
-
       <Table
+        bordered
         loading={isLoading}
         pagination={{ pageSize: 6 }}
         columns={columns}

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken'
-import { JWT_SECRET } from '../common/constants'
+import { JWT_SECRET } from '@common/constants'
 
 export const VerifyToken = (token: string) => {
   try {

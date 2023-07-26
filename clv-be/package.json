@@ -110,7 +110,6 @@
       "^src/(.*)$": "<rootDir>/$1",
       "^@modules/(.*)$": "<rootDir>/modules/$1",
       "^@config/(.*)$": "<rootDir>/configs/$1",
-      "^@repositories/(.*)$": "<rootDir>/repositories/$1",
       "^@common/(.*)$": [
         "<rootDir>/common/$1"
       ],
