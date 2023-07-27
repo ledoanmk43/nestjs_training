@@ -1,23 +1,30 @@
-import { SaveTwoTone } from '@ant-design/icons'
+import { DeleteFilled, SaveTwoTone } from '@ant-design/icons'
 import {
   CreatePermissionAPI,
   EditPermissionRoleAPI,
   NewPermissionParams,
 } from '@api/user/api.permission'
 import { Permission, Role } from '@utils/auth.provider'
-import { Select, Tooltip } from 'antd'
+import { Button, Select, Tooltip } from 'antd'
 import React, { useEffect, useState } from 'react'
 
 const options = [{ value: 'USER' }, { value: 'ADMIN' }, { value: 'MASTER' }]
 
 export type ActionType = 'INSERT' | 'UPDATE' | 'GET'
 
+export type NameDescription = {
+  name: string
+  description: string
+}
+
 interface PermissionSelectProps {
   roles: Role[]
   permission: Permission
+  setPermissionList: React.Dispatch<React.SetStateAction<Permission[]>>
   setIsReload: React.Dispatch<React.SetStateAction<boolean>>
   action: ActionType
-  rowData: string[]
+  rowData: NameDescription
+  filteredData: Permission[]
 }
 
 const PermissionSelect: React.FC<PermissionSelectProps> = ({
@@ -26,6 +33,8 @@ const PermissionSelect: React.FC<PermissionSelectProps> = ({
   setIsReload,
   action,
   rowData,
+  setPermissionList,
+  filteredData,
 }) => {
   const [rolesName, setRolesName] = useState<string[]>([])
   const initialRoles = roles.map((role) => role.name)
@@ -40,7 +49,7 @@ const PermissionSelect: React.FC<PermissionSelectProps> = ({
         maxTagCount='responsive'
         mode='multiple'
         key={permission.name}
-        className='min-w-[90%]'
+        className='min-w-[85%]'
         placeholder='Please select'
         value={rolesName}
         onChange={(value) => {
@@ -48,29 +57,48 @@ const PermissionSelect: React.FC<PermissionSelectProps> = ({
         }}
         options={options}
       />
-      <Tooltip title='Save change' placement='right'>
-        <SaveTwoTone
-          className='text-xl'
-          onClick={async () => {
-            console.log(action)
-            if (rolesName.length > 0) {
-              if (action === 'INSERT') {
-                const newPermission: NewPermissionParams = {
-                  name: rowData[0],
-                  description: rowData[1],
-                  rolesName: rolesName,
+      <div className='min-w-[15%] flex justify-between ml-2'>
+        <Tooltip title='Save change' placement='right'>
+          <SaveTwoTone
+            className='text-xl'
+            onClick={async () => {
+              if (rolesName.length > 0) {
+                if (action === 'INSERT') {
+                  const newPermission: NewPermissionParams = {
+                    name: rowData.name,
+                    description: rowData.description,
+                    rolesName: rolesName,
+                  }
+                  await CreatePermissionAPI(newPermission)
+                } else {
+                  if (await EditPermissionRoleAPI(permission.name, rolesName)) {
+                    setIsReload(true)
+                  }
                 }
-                await CreatePermissionAPI(newPermission)
               } else {
-                await EditPermissionRoleAPI(permission.name, rolesName)
+                alert('[Roles] should not be empty')
               }
-            } else {
-              alert('This field should not be empty')
-            }
-            setIsReload(true)
-          }}
-        />
-      </Tooltip>
+            }}
+          />
+        </Tooltip>
+        <Button
+          className='p-0 h-0'
+          type='text'
+          disabled={!permission.id}
+          icon={
+            <DeleteFilled
+              className={`text-lg text-${
+                permission.id ? 'red-500' : 'grey-500'
+              }`}
+              onClick={() =>
+                setPermissionList([
+                  ...filteredData.filter((item) => item.id !== permission.id),
+                ])
+              }
+            />
+          }
+        ></Button>
+      </div>
     </div>
   )
 }
