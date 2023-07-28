@@ -27,7 +27,6 @@
       "@auth/*": ["src/modules/auth/*"],
       "@user/*": ["src/modules/user/*"],
       "@mailing/*": ["src/modules/mailing/*"],
-      "@jwt/*": ["src/jwt/*"],
       "@utils/*": ["src/utils/*"]
     }
   }

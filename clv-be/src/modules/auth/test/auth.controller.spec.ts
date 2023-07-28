@@ -1,6 +1,6 @@
 import { AuthController } from '@auth/controllers/auth.controller';
 import { AuthService } from '@auth/services/auth.service';
-import { JwtStrategy } from '@jwt/jwt.strategy';
+import { JwtStrategy } from '@src/modules/auth/jwt/jwt.strategy';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { loginStub, registerStub } from './stubs/auth.stub';

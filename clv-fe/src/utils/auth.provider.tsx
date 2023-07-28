@@ -1,12 +1,13 @@
 'use client'
 import { GetUserProfileAPI } from '@/api/user/api.user'
-import LoginUserAPI from '@api/authen/login'
+import { LoginUserAPI } from '@api/authen/login'
 import RegisterUserAPI, { RegisterParams } from '@api/authen/register'
-import { ACCESS_TOKEN } from '@common/constants'
+import { ACCESS_TOKEN, GOOGLE_CLIENT_ID } from '@common/constants'
 import { DASHBOARD_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@common/routes'
 import { ActionType } from '@components/select/PermissionSelect'
 import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, createContext, useEffect, useState } from 'react'
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
 
 export type User = {
   email: string
@@ -105,10 +106,20 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   }, [accessToken])
 
   return (
+    // <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    //   <GoogleLogin
+    //     onSuccess={async (credentialResponse) => {
+    //       console.log(credentialResponse)
+    //     }}
+    //     onError={() => {
+    //       console.log('Login Failed')
+    //     }}
+    //   />
     <UserContext.Provider
       value={{ user, setUser, handleAuthenUser, handleClearUser }}
     >
       {children}
     </UserContext.Provider>
+    // </GoogleOAuthProvider>
   )
 }

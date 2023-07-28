@@ -1,5 +1,5 @@
 import { AuthResponseDTO, LoginDTO, RegisterDTO } from '@auth/dto';
-import { JwtPayload } from '@jwt/jwt.payload';
+import { JwtPayload } from '@src/modules/auth/jwt/jwt.payload';
 import {
   BadRequestException,
   HttpException,
@@ -19,6 +19,17 @@ export class AuthService {
     private readonly roleService: RoleService,
     private readonly jwtService: JwtService,
   ) {}
+
+  googleLogin(req: any) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+
+    return {
+      message: 'User information from google',
+      user: req.user,
+    };
+  }
 
   // Register new user
   async registerUser(userDto: RegisterDTO): Promise<AuthResponseDTO> {

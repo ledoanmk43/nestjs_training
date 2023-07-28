@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '@utils/auth.provider'
 import Link from 'antd/es/typography/Link'
+import { FcGoogle } from 'react-icons/fc'
 import { Metadata } from 'next'
+import { LoginGoogleAPI } from '@api/authen/login'
 
 export const metadata: Metadata = {
   title: 'CLV login',
@@ -76,13 +78,21 @@ export const LoginForm = () => {
             onChange={handlePasswordChange}
           />
         </div>
-        <div className='flex justify-center'>
+        <div className='flex flex-col items-center justify-center'>
           <Button
             onClick={onLogin}
             type='primary'
-            className='bg-blue-900 text-white font-semibold rounded'
+            className='bg-blue-900 text-white font-semibold rounded min-w-[60%]'
           >
             Login
+          </Button>
+          Or
+          <Button
+            onClick={LoginGoogleAPI}
+            icon={<FcGoogle className='text-lg' />}
+            className='flex px-1 items-center justify-center min-w-[60%]'
+          >
+            Sign in with Google
           </Button>
         </div>
       </form>

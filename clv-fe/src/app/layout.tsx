@@ -2,7 +2,6 @@
 import { UserProvider } from '@/utils/auth.provider'
 import { Footer } from '@components/footer/Footer'
 import { Navbar } from '@components/navbar/Navbar'
-import StyledComponentsRegistry from '@utils/AntdRegistry'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -24,6 +23,7 @@ export default function RootLayout({
       lang='en'
       className={`${inter.className} scroll-smooth antialiased flex flex-col min-h-screen`}
     >
+      
       <UserProvider>
         <body className='flex flex-col'>
           {/* <StyledComponentsRegistry> */}

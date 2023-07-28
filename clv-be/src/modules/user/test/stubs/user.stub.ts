@@ -1,5 +1,5 @@
 import { AuthReq } from '@common/common.types';
-import { JwtPayload } from '@jwt/jwt.payload';
+import { JwtPayload } from '@src/modules/auth/jwt/jwt.payload';
 import { ActivateDto, PermissionDto } from '@user/dto';
 import { Permission, Role, User } from '@user/models';
 

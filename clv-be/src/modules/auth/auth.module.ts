@@ -1,14 +1,13 @@
 import { AuthController } from '@auth/controllers/auth.controller';
 import { AuthService } from '@auth/services/auth.service';
 import { JWT, JWT_EXP_H, JWT_SECRET } from '@common/app.jwt';
-import { JwtStrategy } from '@jwt/jwt.strategy';
+import { JwtStrategy } from '@src/modules/auth/jwt/jwt.strategy';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@user/models/model.user';
 import { UserModule } from '@user/user.module';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
@@ -25,6 +24,6 @@ import { UserModule } from '@user/user.module';
     PassportModule.register({ defaultStrategy: JWT }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, GoogleStrategy],
 })
 export class AuthModule {}

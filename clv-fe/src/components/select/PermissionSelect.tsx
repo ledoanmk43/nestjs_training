@@ -39,6 +39,25 @@ const PermissionSelect: React.FC<PermissionSelectProps> = ({
   const [rolesName, setRolesName] = useState<string[]>([])
   const initialRoles = roles.map((role) => role.name)
 
+  async function handleSave() {
+    if (rolesName.length > 0) {
+      if (action === 'INSERT') {
+        const newPermission: NewPermissionParams = {
+          name: rowData.name,
+          description: rowData.description,
+          rolesName: rolesName,
+        }
+        await CreatePermissionAPI(newPermission)
+      } else {
+        if (await EditPermissionRoleAPI(permission.name, rolesName)) {
+          setIsReload(true)
+        }
+      }
+    } else {
+      alert('[Roles] should not be empty')
+    }
+  }
+
   useEffect(() => {
     setRolesName(initialRoles)
   }, [roles])
@@ -59,27 +78,7 @@ const PermissionSelect: React.FC<PermissionSelectProps> = ({
       />
       <div className='min-w-[15%] flex justify-between ml-2'>
         <Tooltip title='Save change' placement='right'>
-          <SaveTwoTone
-            className='text-xl'
-            onClick={async () => {
-              if (rolesName.length > 0) {
-                if (action === 'INSERT') {
-                  const newPermission: NewPermissionParams = {
-                    name: rowData.name,
-                    description: rowData.description,
-                    rolesName: rolesName,
-                  }
-                  await CreatePermissionAPI(newPermission)
-                } else {
-                  if (await EditPermissionRoleAPI(permission.name, rolesName)) {
-                    setIsReload(true)
-                  }
-                }
-              } else {
-                alert('[Roles] should not be empty')
-              }
-            }}
-          />
+          <SaveTwoTone className='text-xl' onClick={() => handleSave()} />
         </Tooltip>
         <Button
           className='p-0 h-0'
