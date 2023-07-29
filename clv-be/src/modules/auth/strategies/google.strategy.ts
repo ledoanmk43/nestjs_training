@@ -1,5 +1,10 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile, Strategy, VerifyCallback } from 'passport-google-oauth20';
+import {
+  Profile,
+  Strategy,
+  StrategyOptions,
+  VerifyCallback,
+} from 'passport-google-oauth20';
 
 import { Injectable } from '@nestjs/common';
 
@@ -10,14 +15,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       clientID: process.env.OAUTH_GOOGLE_CLIENT_ID,
       clientSecret: process.env.OAUTH_GOOGLE_SECRET,
       callbackURL: 'http://localhost:8000/auth/google-redirect',
-      userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
       scope: ['email', 'profile'],
-    });
+    } as StrategyOptions);
   }
 
   async validate(
     _accessToken: string,
-    profile: Profile,
+    _refreshToken: string,
+    profile: any,
     done: VerifyCallback,
   ): Promise<any> {
     const { name, emails } = profile;
@@ -26,7 +31,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       firstName: name.givenName,
       lastName: name.familyName,
     };
-    return user;
-    // done(null, user);
+    done(null, user);
   }
 }

@@ -35,11 +35,7 @@ export class UserService {
   async searchUserByCondition(condition: any): Promise<User> {
     try {
       const user = await this.userRepository.findOne(condition);
-      if (user) {
-        return user;
-      } else {
-        throw new Error('user not found');
-      }
+      return user;
     } catch (error) {
       Logger.error(error.message);
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);

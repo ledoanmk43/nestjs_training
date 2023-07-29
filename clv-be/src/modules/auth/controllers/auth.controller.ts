@@ -1,7 +1,16 @@
 import { AuthResponseDTO, LoginDTO, RegisterDTO } from '@auth/dto';
 import { GoogleOauthGuard } from '@auth/guards/google.guard';
 import { AuthService } from '@auth/services/auth.service';
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { OAuthReq } from '@common/common.types';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
@@ -11,10 +20,12 @@ export class AuthController {
   @Get('google')
   async googleAuth() {}
 
-  @UseGuards(GoogleOauthGuard)
   @Get('google-redirect')
-  googleAuthRedirect(@Req() req: Request) {
-    return this.authService.googleLogin(req);
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthRedirect(@Req() req: OAuthReq, @Res() res: any) {
+    const data = await this.authService.googleLogin(req.user);
+    console.log(data.accessToken);
+    res.redirect('http://localhost:3000/dashboard?accessToken=' + data.accessToken);
   }
 
   @Post('register')

@@ -1,11 +1,11 @@
 'use client'
 import { UserContext, getToken } from '@/utils/auth.provider'
-import { LOGIN_ROUTE, PROFILE_ROUTE } from '@common/routes'
+import { DASHBOARD_ROUTE, LOGIN_ROUTE, PROFILE_ROUTE } from '@common/routes'
 import { TbListPermission } from '@components/table/TbListPermission'
 import { TbListUser } from '@components/table/TbListUser'
 import Link from 'antd/es/typography/Link'
 import { Metadata } from 'next'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 
 export const metadata: Metadata = {
@@ -14,16 +14,21 @@ export const metadata: Metadata = {
 }
 export const DashBoard = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
   const { user } = useContext(UserContext)
 
-  const [accessToken, setAccessToken] = useState<string | null>(getToken())
-
   useEffect(() => {
-    if (!accessToken) {
-      alert('Unauthorized')
-      router.push(LOGIN_ROUTE)
+    const token = searchParams.get('accessToken')
+    if (token) {
+      localStorage.setItem('accessToken', token)
+      window.location.replace(DASHBOARD_ROUTE)
+    } else {
+      if (!getToken()) {
+        router.push(LOGIN_ROUTE)
+      }
     }
-  }, [user, accessToken])
+  }, [user])
   return (
     user && (
       <div className='flex mt-40 justify-center items-start bg-secondColor min-h-screen'>

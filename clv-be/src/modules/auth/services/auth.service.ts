@@ -1,5 +1,5 @@
 import { AuthResponseDTO, LoginDTO, RegisterDTO } from '@auth/dto';
-import { JwtPayload } from '@src/modules/auth/jwt/jwt.payload';
+import { OAuthUser } from '@common/common.types';
 import {
   BadRequestException,
   HttpException,
@@ -8,9 +8,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from '@src/modules/auth/jwt/jwt.payload';
+import { User } from '@user/models';
 import { RoleService, UserService } from '@user/services';
 import * as bcrypt from 'bcrypt';
-import { User } from '@user/models';
 
 @Injectable()
 export class AuthService {
@@ -20,15 +21,44 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  googleLogin(req: any) {
-    if (!req.user) {
-      return 'No user from google';
+  async googleLogin(userDto: OAuthUser): Promise<AuthResponseDTO> {
+    const defaultPassword: string = 'A1231230@a';
+    try {
+      const user = await this.userService.searchUserByCondition({
+        where: { email: userDto.email },
+        relations: ['roles'],
+      });
+      if (user) {
+        const roleIdList = user.roles.map((role) => {
+          return role.id;
+        });
+        // Return JWT if success
+        return this.generateAccessToken(user, roleIdList);
+      } else {
+        const newUserDto: RegisterDTO = {
+          firstName: userDto.firstName,
+          lastName: userDto.lastName,
+          email: userDto.email,
+          password: defaultPassword,
+          role: null,
+        };
+        // Create new user
+        const user = await this.userService.addUser(newUserDto);
+        // Get role
+        const role = await this.roleService.searchRoleByCondition({
+          where: { name: 'USER' },
+          relations: ['users'],
+        });
+        role.users.push(user);
+        //Insert to junction table
+        const savedRole = await this.roleService.addRole(role);
+        // Return JWT if success
+        return this.generateAccessToken(user, [savedRole.id]);
+      }
+    } catch (error) {
+      Logger.error(error.message);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-
-    return {
-      message: 'User information from google',
-      user: req.user,
-    };
   }
 
   // Register new user
@@ -60,6 +90,9 @@ export class AuthService {
         where: { email: userDto.email },
         relations: ['roles'],
       });
+      if (!user) {
+        throw new Error('Email does not exist');
+      }
       // Verify password
       const isVerified = await bcrypt.compare(userDto.password, user.password);
       if (isVerified) {
