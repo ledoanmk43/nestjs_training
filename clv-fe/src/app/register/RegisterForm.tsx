@@ -3,7 +3,7 @@ import { RegisterParams } from '@api/authen/register'
 import { ACCESS_TOKEN } from '@common/constants'
 import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@common/routes'
 import { UserContext } from '@utils/auth.provider'
-import { Button } from 'antd'
+import { Button, Input } from 'antd'
 import Link from 'antd/es/typography/Link'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
@@ -74,12 +74,14 @@ export const RegisterForm = () => {
           >
             First name
           </label>
-          <input
+          <Input
             type='text'
             id='firstName'
             className='w-full border rounded px-3 py-2'
             value={firstName}
             onChange={handleFirstNameChange}
+            onPressEnter={onRegister}
+            placeholder='Your first name'
           />
         </div>
         <div className='mb-4'>
@@ -89,12 +91,14 @@ export const RegisterForm = () => {
           >
             Last name
           </label>
-          <input
+          <Input
             type='text'
             id='lastName'
             className='w-full border rounded px-3 py-2'
             value={lastName}
             onChange={handleLastNameChange}
+            onPressEnter={onRegister}
+            placeholder='Your last name'
           />
         </div>
         <div className='mb-4'>
@@ -104,12 +108,14 @@ export const RegisterForm = () => {
           >
             Email
           </label>
-          <input
+          <Input
             type='email'
             id='email'
             className='w-full border rounded px-3 py-2'
             value={email}
             onChange={handleEmailChange}
+            onPressEnter={onRegister}
+            placeholder='Your email address'
           />
         </div>
         <div className='mb-4'>
@@ -119,12 +125,14 @@ export const RegisterForm = () => {
           >
             Password
           </label>
-          <input
+          <Input.Password
             type='password'
             id='password'
             className='w-full border rounded px-3 py-2'
             value={password}
             onChange={handlePasswordChange}
+            onPressEnter={onRegister}
+            placeholder='Your password'
           />
         </div>
         <div className='flex flex-col items-center justify-center'>

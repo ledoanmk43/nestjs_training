@@ -3,7 +3,12 @@ import { GetUserProfileAPI } from '@/api/user/api.user'
 import { LoginUserAPI } from '@api/authen/login'
 import RegisterUserAPI, { RegisterParams } from '@api/authen/register'
 import { ACCESS_TOKEN } from '@common/constants'
-import { DASHBOARD_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '@common/routes'
+import {
+  DASHBOARD_ROUTE,
+  LOGIN_ROUTE,
+  REGISTER_ROUTE,
+  RESET_PASSWORD_ROUTE,
+} from '@common/routes'
 import { ActionType } from '@components/select/PermissionSelect'
 import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, createContext, useEffect, useState } from 'react'
@@ -97,7 +102,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     if (accessToken) {
       GetProfile()
     } else {
-      if (pathname === REGISTER_ROUTE) {
+      if (pathname === REGISTER_ROUTE || pathname === RESET_PASSWORD_ROUTE) {
         return
       }
       router.push(LOGIN_ROUTE)

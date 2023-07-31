@@ -1,6 +1,9 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { User } from '@user/models';
+import { UserService } from '@user/services';
+import { generateRandomPassword } from '@utils/index';
 import { google } from 'googleapis';
 import { Options } from 'nodemailer/lib/smtp-transport';
 
@@ -9,6 +12,7 @@ export class MailingService {
   constructor(
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
+    private readonly userService: UserService,
   ) {}
   private async setTransport() {
     const OAuth2 = google.auth.OAuth2;
@@ -19,7 +23,7 @@ export class MailingService {
     );
 
     oauth2Client.setCredentials({
-      refresh_token: process.env.REFRESH_TOKEN,
+      refresh_token: this.configService.get('REFRESH_TOKEN'),
     });
 
     const accessToken: string = await new Promise((resolve, reject) => {
@@ -35,7 +39,7 @@ export class MailingService {
       service: 'gmail',
       auth: {
         type: 'OAuth2',
-        user: this.configService.get('EMAIL'),
+        user: this.configService.get('EMAIL_ACCOUNT'),
         clientId: this.configService.get('CLIENT_ID'),
         clientSecret: this.configService.get('CLIENT_SECRET'),
         accessToken,
@@ -44,25 +48,31 @@ export class MailingService {
     this.mailerService.addTransporter('gmail', config);
   }
 
-  public async sendMail() {
+  async sendResetPwMail(userEmail: string): Promise<void> {
     await this.setTransport();
-    this.mailerService
-      .sendMail({
-        transporterName: 'gmail',
-        to: 'dummy-reciever@gmail.com', // list of receivers
-        from: 'noreply@nestjs.com', // sender address
-        subject: 'Verficiaction Code', // Subject line
-        template: 'action',
-        context: {
-          // Data to be sent to template engine..
-          code: '38320',
-        },
-      })
-      .then((success) => {
-        console.log(success);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    try {
+      const newPassword: string = generateRandomPassword();
+      const updatedUser: User = await this.userService.updateUserPwByEmail(
+        userEmail,
+        newPassword,
+      );
+      if (updatedUser) {
+        await this.mailerService.sendMail({
+          transporterName: 'gmail',
+          to: updatedUser.email,
+          from: this.configService.get('EMAIL_ACCOUNT'),
+          subject: '[Reset Password] Reset your CLV training password',
+          template: 'action',
+          context: {
+            name: updatedUser.firstName,
+            password: newPassword,
+            link: `http://localhost:3000/profile/reset-password?e=${updatedUser.email}  `,
+          },
+        });
+      }
+    } catch (error) {
+      Logger.error(error.message);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }

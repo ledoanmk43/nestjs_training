@@ -193,7 +193,9 @@ describe('UserController', () => {
       });
 
       test('then it should call UserService', () => {
-        expect(userService.updateUserStatusById).toBeCalledWith(activateStub());
+        expect(userService.updateUserStatusByEmail).toBeCalledWith(
+          activateStub(),
+        );
       });
     });
   });

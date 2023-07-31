@@ -24,8 +24,11 @@ export class AuthController {
   @UseGuards(GoogleOauthGuard)
   async googleAuthRedirect(@Req() req: OAuthReq, @Res() res: any) {
     const data = await this.authService.googleLogin(req.user);
-    console.log(data.accessToken);
-    res.redirect('http://localhost:3000/dashboard?accessToken=' + data.accessToken);
+    if (data) {
+      res.redirect(
+        'http://localhost:3000/dashboard?accessToken=' + data.accessToken,
+      );
+    }
   }
 
   @Post('register')

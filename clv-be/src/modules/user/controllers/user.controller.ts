@@ -1,6 +1,7 @@
 import { AuthenticationGuard, AuthorizationGuard } from '@auth/guards';
 import {
   GET_ALL_PERMISSIONS,
+  RESET_PASSWORD,
   UPDATE_PERMISSION_ROLE,
 } from '@common/app.user-permission';
 import { AuthReq } from '@common/common.types';
@@ -22,7 +23,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ActivateDto, PermissionDto } from '@user/dto';
+import { ActivateDto, PermissionDto, ResetPwDto } from '@user/dto';
 import { EditPermissionDto } from '@user/dto/permission.edit.dto';
 import { Permission, User } from '@user/models';
 import { PermissionService, RoleService, UserService } from '@user/services';
@@ -48,8 +49,15 @@ export class UserController {
   @UseGuards(AuthorizationGuard)
   @UseGuards(AuthenticationGuard)
   @Put('activate')
-  activateUserById(@Body() activateDto: ActivateDto): Promise<void> {
-    return this.userService.updateUserStatusById(activateDto);
+  activateUserByEmail(@Body() activateDto: ActivateDto): Promise<void> {
+    return this.userService.updateUserStatusByEmail(activateDto);
+  }
+
+  @HttpCode(202)
+  @HasPermission(RESET_PASSWORD)
+  @Put('reset-password')
+  resetPassword(@Body() resetPwDto: ResetPwDto): Promise<void> {
+    return this.userService.resetPw(resetPwDto);
   }
 
   @HasPermission(GET_ALL_USER)

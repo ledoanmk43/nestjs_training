@@ -1,9 +1,11 @@
+import { MailingController } from '@mailing/controllers/mailing.controller';
+import { MailingService } from '@mailing/services/mailing.service';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MailingService } from '@mailing/services/mailing.service';
-import { MailingController } from '@mailing/controllers/mailing.controller';
+import { UserModule } from '@user/user.module';
 @Module({
-  providers: [MailingService, ConfigService],
+  imports: [UserModule],
   controllers: [MailingController],
+  providers: [MailingService, ConfigService],
 })
 export class MailingModule {}

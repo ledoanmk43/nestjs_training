@@ -1,7 +1,7 @@
 'use client'
 import { ACCESS_TOKEN } from '@common/constants'
 import { DASHBOARD_ROUTE, REGISTER_ROUTE } from '@common/routes'
-import { Button } from 'antd'
+import { Button, Input } from 'antd'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useState } from 'react'
 import { UserContext } from '@utils/auth.provider'
@@ -9,6 +9,8 @@ import Link from 'antd/es/typography/Link'
 import { FcGoogle } from 'react-icons/fc'
 import { Metadata } from 'next'
 import { LoginGoogleAPI } from '@api/authen/login'
+import { SendResetPwMailAPI } from '@api/user/api.user'
+import { EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons'
 
 export const metadata: Metadata = {
   title: 'CLV login',
@@ -20,6 +22,11 @@ export const LoginForm = () => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
+  const handleShowPasswordToggle = () => {
+    setShowPassword(!showPassword)
+  }
   const handleEmailChange = (e: any) => {
     setEmail(e.target.value)
   }
@@ -55,12 +62,14 @@ export const LoginForm = () => {
           >
             Email
           </label>
-          <input
+          <Input
             type='email'
             id='email'
             className='w-full border rounded px-3 py-2'
             value={email}
             onChange={handleEmailChange}
+            onPressEnter={onLogin}
+            placeholder='Your email address'
           />
         </div>
         <div className='mb-4'>
@@ -70,15 +79,27 @@ export const LoginForm = () => {
           >
             Password
           </label>
-          <input
+          <Input.Password
             type='password'
             id='password'
             className='w-full border rounded px-3 py-2'
             value={password}
             onChange={handlePasswordChange}
+            iconRender={(visible) =>
+              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+            }
+            onPressEnter={onLogin}
+            placeholder='Your password'
           />
         </div>
-        <div className='flex flex-col items-center justify-center'>
+        <Link
+          onClick={() => {
+            SendResetPwMailAPI(email)
+          }}
+        >
+          Forgot your password ?
+        </Link>
+        <div className='flex flex-col items-center justify-center my-3'>
           <Button
             onClick={onLogin}
             type='primary'

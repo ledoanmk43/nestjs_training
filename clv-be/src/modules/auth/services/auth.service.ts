@@ -8,7 +8,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from '@src/modules/auth/jwt/jwt.payload';
+import { JwtPayload } from '@auth/jwt/jwt.payload';
 import { User } from '@user/models';
 import { RoleService, UserService } from '@user/services';
 import * as bcrypt from 'bcrypt';
