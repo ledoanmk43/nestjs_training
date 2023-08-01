@@ -2,11 +2,12 @@
 import { EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons'
 import { ResetPwAPI } from '@api/user/api.user'
 import { ACCESS_TOKEN } from '@common/constants'
-import { DASHBOARD_ROUTE } from '@common/routes'
+import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@common/routes'
 import { Button, Input } from 'antd'
 import { Metadata } from 'next'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { IsValidIdTokenAPI } from '@api/authen/expiration'
 
 export const metadata: Metadata = {
   title: 'CLV login',
@@ -20,7 +21,7 @@ export const ResetPwForm = () => {
   const [tempPassword, setTempPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmNewPassword, setConfirmNewPassword] = useState('')
-
+  const [isExpired, setIsExpired] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState(false)
 
   const handleShowTempPasswordToggle = () => {
@@ -48,16 +49,33 @@ export const ResetPwForm = () => {
     ResetPwAPI(email, tempPassword, newPassword)
   }
 
+  async function checkIsExpired() {
+    const idToken = searchParams.get('idToken')
+    if (idToken) {
+      setIsExpired(!(await IsValidIdTokenAPI(idToken)))
+    }
+  }
+
   useEffect(() => {
     const emailParam = searchParams.get('e')
     if (emailParam) {
       setEmail(emailParam)
     }
+
     const accessToken: string | null = localStorage.getItem(ACCESS_TOKEN)
+
     if (accessToken) {
       router.push(DASHBOARD_ROUTE)
     }
   }, [email])
+
+  useEffect(() => {
+    if (isExpired) {
+      router.push(LOGIN_ROUTE)
+      return
+    }
+    checkIsExpired()
+  }, [isExpired])
 
   return (
     <div className='flex justify-center items-center min-h-screen bg-secondColor'>

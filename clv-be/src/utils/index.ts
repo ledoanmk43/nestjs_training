@@ -13,5 +13,13 @@ export function generateRandomPassword(): string {
     randomPassword += allChars[randomIndex];
   }
 
-  return randomPassword;
+  return randomPassword + Math.floor(Math.random() * 10);
+}
+
+export function getRandomToken(): string {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }

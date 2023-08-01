@@ -7,6 +7,7 @@ import { MailingModule } from '@mailing/mailing.module';
 import { MailingService } from '@mailing/services/mailing.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -16,6 +17,11 @@ import { AppService } from './app.service';
 
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+      host: 'localhost',
+      port: 6379,
+    }),
     MailingModule,
     MailerModule.forRoot({
       transport: 'smtps://user@domain.com:pass@smtp.domain.com',
@@ -34,7 +40,6 @@ import { AppService } from './app.service';
     }),
     AuthModule,
     UserModule,
-    MailingModule,
   ],
   controllers: [AppController, MailingController],
   providers: [AppService, ...providers, MailingService],

@@ -10,6 +10,9 @@ export const API_LOGIN_REQUEST = process.env
 export const API_REGISTER_REQUEST = process.env
   .NEXT_PUBLIC_API_REGISTER_REQUEST as RequestInfo
 
+export const API_VALIDATE_REDIS_SESSION = process.env
+  .NEXT_PUBLIC_API_VALIDATE_REDIS_SESSION as RequestInfo
+
 // User API
 export const API_GET_USER = process.env.NEXT_PUBLIC_API_GET_USER as RequestInfo
 

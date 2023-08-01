@@ -1,15 +1,26 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@user/models';
 import { UserService } from '@user/services';
-import { generateRandomPassword } from '@utils/index';
+import { generateRandomPassword, getRandomToken } from '@utils/index';
+import { Cache } from 'cache-manager';
 import { google } from 'googleapis';
 import { Options } from 'nodemailer/lib/smtp-transport';
+import { REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
 
 @Injectable()
 export class MailingService {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
     private readonly userService: UserService,
@@ -57,6 +68,8 @@ export class MailingService {
         newPassword,
       );
       if (updatedUser) {
+        const idToken = getRandomToken();
+        await this.cacheManager.set(idToken, REDIS_RESET_PW_SESSION, 90000);
         await this.mailerService.sendMail({
           transporterName: 'gmail',
           to: updatedUser.email,
@@ -66,7 +79,42 @@ export class MailingService {
           context: {
             name: updatedUser.firstName,
             password: newPassword,
-            link: `http://localhost:3000/profile/reset-password?e=${updatedUser.email}  `,
+            link:
+              this.configService.get('AUTH_RESET_PASSWORD_URL') +
+              updatedUser.email +
+              '&idToken=' +
+              idToken,
+          },
+        });
+      }
+    } catch (error) {
+      Logger.error(error.message);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async sendNewPwOnSignUpMail(
+    newUser: User,
+    defaultPassword: string,
+  ): Promise<void> {
+    await this.setTransport();
+    try {
+      // const newPassword: string = generateRandomPassword();
+      // const updatedUser: User = await this.userService.updateUserPwByEmail(
+      //   userEmail,
+      //   newPassword,
+      // );
+      if (newUser) {
+        await this.mailerService.sendMail({
+          transporterName: 'gmail',
+          to: newUser.email,
+          from: this.configService.get('EMAIL_ACCOUNT'),
+          subject: '[Welcome] CLV training password for new member',
+          template: 'action',
+          context: {
+            name: newUser.firstName,
+            password: defaultPassword,
+            link: `http://localhost:3000/profile/reset-password?e=${newUser.email}  `,
           },
         });
       }

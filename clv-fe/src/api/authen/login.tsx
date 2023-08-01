@@ -1,5 +1,4 @@
 import { API_LOGIN_GOOGLE, API_LOGIN_REQUEST, DOMAIN } from '@common/api'
-import { redirect } from 'next/dist/server/api-utils'
 
 export async function LoginUserAPI(email: string, password: string) {
   const response = await fetch(DOMAIN + API_LOGIN_REQUEST, {

@@ -1,28 +1,36 @@
 import { AuthResponseDTO, LoginDTO, RegisterDTO } from '@auth/dto';
+import { JwtPayload } from '@auth/jwt/jwt.payload';
 import { OAuthUser } from '@common/common.types';
+import { MailingService } from '@mailing/services/mailing.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   BadRequestException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from '@auth/jwt/jwt.payload';
 import { User } from '@user/models';
 import { RoleService, UserService } from '@user/services';
+import { generateRandomPassword } from '@utils/index';
 import * as bcrypt from 'bcrypt';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     private readonly userService: UserService,
     private readonly roleService: RoleService,
     private readonly jwtService: JwtService,
+    private readonly mailingService: MailingService,
   ) {}
 
   async googleLogin(userDto: OAuthUser): Promise<AuthResponseDTO> {
-    const defaultPassword: string = 'A1231230@a';
+    const defaultPassword: string = generateRandomPassword();
     try {
       const user = await this.userService.searchUserByCondition({
         where: { email: userDto.email },
@@ -52,6 +60,8 @@ export class AuthService {
         role.users.push(user);
         //Insert to junction table
         const savedRole = await this.roleService.addRole(role);
+        // Send mail notification user about new password
+        await this.mailingService.sendNewPwOnSignUpMail(user, defaultPassword); //
         // Return JWT if success
         return this.generateAccessToken(user, [savedRole.id]);
       }
@@ -118,5 +128,14 @@ export class AuthService {
       role_id: roleIdList,
     } as JwtPayload);
     return response;
+  }
+
+  async checkIsValidIdToken(idToken: string): Promise<boolean> {
+    const redisData = await this.cacheManager.get(idToken);
+    if (redisData) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
