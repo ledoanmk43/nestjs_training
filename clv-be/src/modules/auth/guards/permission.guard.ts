@@ -8,6 +8,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { In } from 'typeorm';
 import { RoleService } from '@user/services';
+import { Role } from '@user/models';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
@@ -17,18 +18,18 @@ export class AuthorizationGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const fromRequestPermission = this.reflector.get<string[]>(
+    const fromRequestPermissions = this.reflector.get<string[]>(
       'PERMISSION',
       context.getHandler(),
     );
-    if (!fromRequestPermission) {
+    if (!fromRequestPermissions) {
       return false;
     }
     try {
       const request = context.switchToHttp().getRequest();
       const listPermissionName: string[] =
-        await this.searchPermissionListByRoleId(request.user.role_id);
-      return this.hasPermission(listPermissionName, fromRequestPermission);
+        await this.searchListPermissionNameByRoleId(request.user.roleIds);
+      return this.hasPermission(listPermissionName, fromRequestPermissions);
     } catch (error) {
       Logger.error(error.message);
       throw new UnauthorizedException(error.message);
@@ -36,9 +37,12 @@ export class AuthorizationGuard implements CanActivate {
   }
 
   // Check target permission and user permission if match
-  hasPermission(fromDb: string[], fromRequest: string[]): boolean {
-    const hasPermission = fromRequest.every((permission) =>
-      fromDb.includes(permission),
+  hasPermission(
+    fromDbPermissions: string[],
+    fromRequestPermissions: string[],
+  ): boolean {
+    const hasPermission = fromRequestPermissions.every((permission) =>
+      fromDbPermissions.includes(permission),
     );
     if (hasPermission) {
       return true;
@@ -46,15 +50,16 @@ export class AuthorizationGuard implements CanActivate {
     throw new Error('Forbidden');
   }
 
-  async searchPermissionListByRoleId(id: string[]) {
-    const roles = await this.roleService.searchRoleByCondition({
+  async searchListPermissionNameByRoleId(ids: string[]): Promise<string[]> {
+    const roles: Role[] = await this.roleService.searchListRoleByCondition({
       where: {
-        id: In(id),
+        id: In(ids),
       },
       relations: ['permissions'],
     });
-    return roles.permissions.map((permission) => {
-      return permission.name;
-    });
+
+    return roles.flatMap((role) =>
+      role.permissions.map((permission) => permission.name),
+    );
   }
 }

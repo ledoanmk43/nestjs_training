@@ -60,7 +60,7 @@ export const authReqStub = (): AuthReq => {
   const jwtPayload: JwtPayload = {
     id: mockedId,
     email: 'mock@example.com',
-    role_id: [],
+    roleIds: [],
   };
   // Combine the Request and JwtPayload into the AuthReq object
   const authReq: AuthReq = Object.assign({ user: jwtPayload });

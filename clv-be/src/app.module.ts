@@ -20,7 +20,7 @@ import { AppService } from './app.service';
     CacheModule.register({
       isGlobal: true,
       host: 'localhost',
-      port: 6379,
+      port: process.env.REDIS_PORT,
     }),
     MailingModule,
     MailerModule.forRoot({

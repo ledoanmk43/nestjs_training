@@ -109,7 +109,7 @@ export class AuthService {
         const roleIdList = user.roles.map((role) => {
           return role.id;
         });
-        // Return JWT if success
+        // Return JWT when succeed
         return this.generateAccessToken(user, roleIdList);
       } else {
         throw new BadRequestException('Wrong password');
@@ -125,12 +125,12 @@ export class AuthService {
     response.accessToken = this.jwtService.sign({
       id: user.id,
       email: user.email,
-      role_id: roleIdList,
+      roleIds: roleIdList,
     } as JwtPayload);
     return response;
   }
 
-  async checkIsValidIdToken(idToken: string): Promise<boolean> {
+  async checkIsValidSessionToken(idToken: string): Promise<boolean> {
     const redisData = await this.cacheManager.get(idToken);
     if (redisData) {
       return true;

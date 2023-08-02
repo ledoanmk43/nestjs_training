@@ -39,10 +39,12 @@ export class AuthController {
   }
 
   @Post('validate-redis-session')
-  async checkIsValidIdToken(
+  async checkIsValidSessionToken(
     @Body() body: RedisTokenDTO,
   ): Promise<ValidRedisDTO> {
-    const isValid = await this.authService.checkIsValidIdToken(body.idToken);
+    const isValid = await this.authService.checkIsValidSessionToken(
+      body.idToken,
+    );
     const res = new ValidRedisDTO();
     res.isValid = isValid;
     return res;

@@ -91,8 +91,8 @@ export class UserController {
     }
   }
 
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(10000)
+  // @UseInterceptors(CacheInterceptor)
+  // @CacheTTL(10000)
   @HasPermission(GET_ALL_PERMISSIONS)
   @UseGuards(AuthorizationGuard)
   @UseGuards(AuthenticationGuard)

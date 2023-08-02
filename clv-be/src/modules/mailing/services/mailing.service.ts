@@ -1,3 +1,8 @@
+import {
+  REDIS_NEW_PW_MAIL_EXPIRE_TIME,
+  REDIS_RESET_PW_MAIL_EXPIRE_TIME,
+} from '@common/app.constants';
+import { REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
@@ -14,7 +19,6 @@ import { generateRandomPassword, getRandomToken } from '@utils/index';
 import { Cache } from 'cache-manager';
 import { google } from 'googleapis';
 import { Options } from 'nodemailer/lib/smtp-transport';
-import { REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
 
 @Injectable()
 export class MailingService {
@@ -69,7 +73,11 @@ export class MailingService {
       );
       if (updatedUser) {
         const idToken = getRandomToken();
-        await this.cacheManager.set(idToken, REDIS_RESET_PW_SESSION, 90000);
+        await this.cacheManager.set(
+          idToken,
+          REDIS_RESET_PW_SESSION,
+          this.configService.get(REDIS_RESET_PW_MAIL_EXPIRE_TIME),
+        ); // expire in 15 minutes
         await this.mailerService.sendMail({
           transporterName: 'gmail',
           to: updatedUser.email,
@@ -77,6 +85,7 @@ export class MailingService {
           subject: '[Reset Password] Reset your CLV training password',
           template: 'action',
           context: {
+            expireTime: '15 minutes',
             name: updatedUser.firstName,
             password: newPassword,
             link:
@@ -99,25 +108,29 @@ export class MailingService {
   ): Promise<void> {
     await this.setTransport();
     try {
-      // const newPassword: string = generateRandomPassword();
-      // const updatedUser: User = await this.userService.updateUserPwByEmail(
-      //   userEmail,
-      //   newPassword,
-      // );
-      if (newUser) {
-        await this.mailerService.sendMail({
-          transporterName: 'gmail',
-          to: newUser.email,
-          from: this.configService.get('EMAIL_ACCOUNT'),
-          subject: '[Welcome] CLV training password for new member',
-          template: 'action',
-          context: {
-            name: newUser.firstName,
-            password: defaultPassword,
-            link: `http://localhost:3000/profile/reset-password?e=${newUser.email}  `,
-          },
-        });
-      }
+      const idToken = getRandomToken();
+      await this.cacheManager.set(
+        idToken,
+        REDIS_RESET_PW_SESSION,
+        this.configService.get(REDIS_NEW_PW_MAIL_EXPIRE_TIME),
+      ); //expires in 1 day
+      await this.mailerService.sendMail({
+        transporterName: 'gmail',
+        to: newUser.email,
+        from: this.configService.get('EMAIL_ACCOUNT'),
+        subject: '[Welcome] CLV training password for new member',
+        template: 'action',
+        context: {
+          expireTime: '1 day',
+          name: newUser.firstName,
+          password: defaultPassword,
+          link:
+            this.configService.get('AUTH_RESET_PASSWORD_URL') +
+            newUser.email +
+            '&idToken=' +
+            idToken,
+        },
+      });
     } catch (error) {
       Logger.error(error.message);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

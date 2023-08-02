@@ -8,7 +8,7 @@ export function generateRandomPassword(): string {
   const allChars = lowercaseChars + uppercaseChars + digitChars + specialChars;
 
   let randomPassword = '';
-  for (let i = 0; i < passwordLength; i++) {
+  for (let i = 0; i < passwordLength + 1; i++) {
     const randomIndex = Math.floor(Math.random() * allChars.length);
     randomPassword += allChars[randomIndex];
   }

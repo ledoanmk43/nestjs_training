@@ -1,5 +1,6 @@
 'use client'
-import { EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons'
+import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons'
+import { IsValidIdTokenAPI } from '@api/authen/expiration'
 import { ResetPwAPI } from '@api/user/api.user'
 import { ACCESS_TOKEN } from '@common/constants'
 import { DASHBOARD_ROUTE, LOGIN_ROUTE } from '@common/routes'
@@ -7,7 +8,6 @@ import { Button, Input } from 'antd'
 import { Metadata } from 'next'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { IsValidIdTokenAPI } from '@api/authen/expiration'
 
 export const metadata: Metadata = {
   title: 'CLV login',
@@ -42,6 +42,7 @@ export const ResetPwForm = () => {
 
   async function onSubmit(e: any) {
     e.preventDefault()
+    checkIsExpired()
     if (newPassword !== confirmNewPassword) {
       alert('Passwords do not match')
       return
@@ -53,6 +54,7 @@ export const ResetPwForm = () => {
     const idToken = searchParams.get('idToken')
     if (idToken) {
       setIsExpired(!(await IsValidIdTokenAPI(idToken)))
+      return
     }
   }
 
@@ -61,7 +63,6 @@ export const ResetPwForm = () => {
     if (emailParam) {
       setEmail(emailParam)
     }
-
     const accessToken: string | null = localStorage.getItem(ACCESS_TOKEN)
 
     if (accessToken) {
