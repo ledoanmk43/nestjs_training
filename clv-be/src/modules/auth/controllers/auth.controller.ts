@@ -6,9 +6,10 @@ import {
 } from '@auth/dto';
 
 import { ValidRedisDTO } from '@auth/dto/auth.response.dto';
+import { AuthenticationGuard } from '@auth/guards';
 import { GoogleOauthGuard } from '@auth/guards/google.guard';
 import { AuthService } from '@auth/services/auth.service';
-import { OAuthReq } from '@common/common.types';
+import { AuthReq, OAuthReq } from '@common/common.types';
 import {
   Body,
   Controller,
@@ -18,12 +19,14 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { config } from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 
-config();
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @UseGuards(GoogleOauthGuard)
   @Get('google')
@@ -34,7 +37,9 @@ export class AuthController {
   async googleAuthRedirect(@Req() req: OAuthReq, @Res() res: any) {
     const data = await this.authService.googleLogin(req.user);
     if (data) {
-      res.redirect(process.env.GOOGLE_REDIRECT_URL + data.accessToken);
+      res.redirect(
+        this.configService.get('GOOGLE_REDIRECT_URL') + data.accessToken,
+      );
     }
   }
 
@@ -60,8 +65,12 @@ export class AuthController {
     return this.authService.loginUser(body);
   }
 
+  @UseGuards(AuthenticationGuard)
   @Post('logout')
-  async getUserLogout(@Req() req: any): Promise<Response> {
-    return req.sendStatus(200);
+  async getUserLogout(@Req() request: AuthReq) {
+    await this.authService.addUserBlackListAccessToken(
+      request.user.accessToken,
+      request.user.id,
+    );
   }
 }

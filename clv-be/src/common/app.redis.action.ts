@@ -1,1 +1,2 @@
 export const REDIS_RESET_PW_SESSION: string = 'RESET_PW_SESSION';
+export const REDIS_CHANGE_PW_SESSION: string = 'REDIS_CHANGE_PW_SESSION';

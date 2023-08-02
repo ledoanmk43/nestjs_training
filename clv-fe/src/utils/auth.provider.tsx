@@ -12,6 +12,7 @@ import {
 import { ActionType } from '@components/select/PermissionSelect'
 import { usePathname, useRouter } from 'next/navigation'
 import { ReactNode, createContext, useEffect, useState } from 'react'
+import { LogoutUserAPI } from '@api/authen/logout'
 
 export type User = {
   email: string
@@ -92,10 +93,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
   }
 
-  function handleClearUser() {
-    localStorage.clear()
-    setUser(null)
-    router.push(LOGIN_ROUTE)
+  async function handleClearUser() {
+    if (await LogoutUserAPI()) {
+      localStorage.clear()
+      setUser(null)
+      router.push(LOGIN_ROUTE)
+    }
   }
 
   useEffect(() => {

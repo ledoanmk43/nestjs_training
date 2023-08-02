@@ -2,7 +2,7 @@ import {
   REDIS_NEW_PW_MAIL_EXPIRE_TIME,
   REDIS_RESET_PW_MAIL_EXPIRE_TIME,
 } from '@common/app.constants';
-import { REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
+import { REDIS_CHANGE_PW_SESSION, REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
 import { MailerService } from '@nestjs-modules/mailer';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
@@ -38,7 +38,7 @@ export class MailingService {
     );
 
     oauth2Client.setCredentials({
-      refresh_token: this.configService.get('REFRESH_TOKEN'),
+      refresh_token: this.configService.get<string>('REFRESH_TOKEN'),
     });
 
     const accessToken: string = await new Promise((resolve, reject) => {
@@ -54,9 +54,9 @@ export class MailingService {
       service: 'gmail',
       auth: {
         type: 'OAuth2',
-        user: this.configService.get('EMAIL_ACCOUNT'),
-        clientId: this.configService.get('CLIENT_ID'),
-        clientSecret: this.configService.get('CLIENT_SECRET'),
+        user: this.configService.get<string>('EMAIL_ACCOUNT'),
+        clientId: this.configService.get<string>('CLIENT_ID'),
+        clientSecret: this.configService.get<string>('CLIENT_SECRET'),
         accessToken,
       },
     };
@@ -76,7 +76,7 @@ export class MailingService {
         await this.cacheManager.set(
           idToken,
           REDIS_RESET_PW_SESSION,
-          this.configService.get(REDIS_RESET_PW_MAIL_EXPIRE_TIME),
+          this.configService.get<number>(REDIS_RESET_PW_MAIL_EXPIRE_TIME),
         ); // expire in 15 minutes
         await this.mailerService.sendMail({
           transporterName: 'gmail',
@@ -89,7 +89,7 @@ export class MailingService {
             name: updatedUser.firstName,
             password: newPassword,
             link:
-              this.configService.get('AUTH_RESET_PASSWORD_URL') +
+              this.configService.get<string>('AUTH_RESET_PASSWORD_URL') +
               updatedUser.email +
               '&idToken=' +
               idToken,
@@ -111,13 +111,13 @@ export class MailingService {
       const idToken = getRandomToken();
       await this.cacheManager.set(
         idToken,
-        REDIS_RESET_PW_SESSION,
-        this.configService.get(REDIS_NEW_PW_MAIL_EXPIRE_TIME),
+        REDIS_CHANGE_PW_SESSION,
+        this.configService.get<number>(REDIS_NEW_PW_MAIL_EXPIRE_TIME),
       ); //expires in 1 day
       await this.mailerService.sendMail({
         transporterName: 'gmail',
         to: newUser.email,
-        from: this.configService.get('EMAIL_ACCOUNT'),
+        from: this.configService.get<string>('EMAIL_ACCOUNT'),
         subject: '[Welcome] CLV training password for new member',
         template: 'action',
         context: {
@@ -125,7 +125,7 @@ export class MailingService {
           name: newUser.firstName,
           password: defaultPassword,
           link:
-            this.configService.get('AUTH_RESET_PASSWORD_URL') +
+            this.configService.get<string>('AUTH_RESET_PASSWORD_URL') +
             newUser.email +
             '&idToken=' +
             idToken,

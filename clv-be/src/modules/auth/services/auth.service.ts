@@ -138,4 +138,16 @@ export class AuthService {
       return false;
     }
   }
+
+  async addUserBlackListAccessToken(accessToken: string, userId: string) {
+    try {
+      const payloadFromToken: any = this.jwtService.verify(accessToken);
+      const currentTime = Math.floor(Date.now() / 1000);
+      const ttl: number = (payloadFromToken.exp - currentTime) * 1000; // the remaining time of the token is also the time it will be in blacklist
+      await this.cacheManager.set(accessToken, userId, ttl);
+    } catch (error) {
+      Logger.error(error.message);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 }
