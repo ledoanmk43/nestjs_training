@@ -139,7 +139,7 @@ export class AuthService {
     }
   }
 
-  async addUserBlackListAccessToken(accessToken: string, userId: string) {
+  async addAccessTokenBlackList(accessToken: string, userId: string) {
     try {
       const payloadFromToken: any = this.jwtService.verify(accessToken);
       const currentTime = Math.floor(Date.now() / 1000);

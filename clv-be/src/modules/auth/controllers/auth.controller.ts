@@ -68,7 +68,7 @@ export class AuthController {
   @UseGuards(AuthenticationGuard)
   @Post('logout')
   async getUserLogout(@Req() request: AuthReq) {
-    await this.authService.addUserBlackListAccessToken(
+    await this.authService.addAccessTokenBlackList(
       request.user.accessToken,
       request.user.id,
     );
