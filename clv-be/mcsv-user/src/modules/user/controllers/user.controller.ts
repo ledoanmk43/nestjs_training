@@ -11,7 +11,6 @@ import {
   GET_ALL_USER,
 } from '@common/migration.permission';
 import { HasPermission } from '@decorators/index';
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -22,8 +21,7 @@ import {
   Post,
   Put,
   Req,
-  UseGuards,
-  UseInterceptors,
+  UseGuards
 } from '@nestjs/common';
 import { ActivateDto, PermissionDto, ResetPwDto } from '@user/dto';
 import { EditPermissionDto } from '@user/dto/permission.edit.dto';
@@ -91,8 +89,7 @@ export class UserController {
     }
   }
 
-  // @UseInterceptors(CacheInterceptor)
-  // @CacheTTL(10000)
+
   @HasPermission(GET_ALL_PERMISSIONS)
   @UseGuards(AuthorizationGuard)
   @UseGuards(AuthenticationGuard)

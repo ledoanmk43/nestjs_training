@@ -72,17 +72,18 @@ export const ResetPwForm = () => {
 
   useEffect(() => {
     if (isExpired) {
+      alert('This link expired. Please request a new link.')
       router.push(LOGIN_ROUTE)
-      return
+    } else {
+      checkIsExpired()
     }
-    checkIsExpired()
   }, [isExpired])
 
   return (
     <div className='flex justify-center items-center min-h-screen bg-secondColor'>
       <form className='bg-white p-8 rounded shadow-md w-400'>
         <h2 className='text-2xl font-semibold text-blue-900 mb-2 text-center'>
-          Reset your password
+          Change new password
         </h2>
         <p className='text-xs text-red-400 mb-6 text-center'>
           New password should not be the same as your old password
