@@ -144,7 +144,11 @@ export class AuthService {
       const payloadFromToken: any = this.jwtService.verify(accessToken);
       const currentTime = Math.floor(Date.now() / 1000);
       const ttl: number = (payloadFromToken.exp - currentTime) * 1000; // the remaining time of the token is also the time it will be in blacklist
-      await this.cacheManager.set(accessToken, userId, ttl);
+      if (ttl > 0) {
+        await this.cacheManager.set(accessToken, userId, ttl);
+      } else {
+        throw new HttpException('Token has expired', HttpStatus.BAD_REQUEST);
+      }
     } catch (error) {
       Logger.error(error.message);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
