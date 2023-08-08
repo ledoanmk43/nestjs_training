@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from '@user/controllers/user.controller';
 import { Permission, Role, User } from '@user/models';
@@ -10,7 +11,24 @@ import {
 import { PermissionService, RoleService, UserService } from '@user/services';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Role, Permission])],
+  imports: [
+    TypeOrmModule.forFeature([User, Role, Permission]),
+    ClientsModule.register([
+      {
+        name: 'NOTI_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'notification',
+            brokers: ['localhost:29092'],
+          },
+          consumer: {
+            groupId: 'noti-consumer',
+          },
+        },
+      },
+    ]),
+  ],
   controllers: [UserController],
   providers: [
     UserService,

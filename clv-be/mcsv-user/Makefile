@@ -35,4 +35,8 @@ testuser:
 	clear
 	pnpm run test user/test
 
+docker:
+	clear
+	docker-compose up -d
+
  

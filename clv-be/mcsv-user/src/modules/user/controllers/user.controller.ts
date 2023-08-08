@@ -1,3 +1,5 @@
+import { GET_MAILING_RESET_PW_RESPONSE_TOPIC } from '@kafka/constant';
+import { SendEmailResetPwResponseDTO } from '@auth/dto/auth.response.dto';
 import { AuthenticationGuard, AuthorizationGuard } from '@auth/guards';
 import {
   GET_ALL_PERMISSIONS,
@@ -11,6 +13,7 @@ import {
   GET_ALL_USER,
 } from '@common/migration.permission';
 import { HasPermission } from '@decorators/index';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -18,20 +21,30 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
+  Inject,
+  Logger,
   Post,
   Put,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
-import { ActivateDto, PermissionDto, ResetPwDto } from '@user/dto';
+import { ActivateDto, PermissionDto, ResetPwDTO, ResetPwDto } from '@user/dto';
 import { EditPermissionDto } from '@user/dto/permission.edit.dto';
 import { Permission, User } from '@user/models';
 import { PermissionService, RoleService, UserService } from '@user/services';
 import { In } from 'typeorm';
+import { REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
+import { generateRandomPassword, getRandomToken } from '@utils/index';
+import { Cache } from 'cache-manager';
+import { SendChangePwMailRequest } from '@kafka/dto/send-mail-request.dto';
+import { ClientKafka } from '@nestjs/microservices';
 
 @Controller('user')
 export class UserController {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
+    @Inject('NOTI_SERVICE') private readonly mailingClient: ClientKafka,
     private readonly userService: UserService,
     private readonly permissionService: PermissionService,
     private readonly roleService: RoleService,
@@ -51,6 +64,61 @@ export class UserController {
   @Put('activate')
   activateUserByEmail(@Body() activateDto: ActivateDto): Promise<void> {
     return this.userService.updateUserStatusByEmail(activateDto);
+  }
+
+  @Post('new-password-mail')
+  async sendResetPwMail(
+    @Body() resetPwDTO: ResetPwDTO,
+  ): Promise<SendEmailResetPwResponseDTO> {
+    try {
+      const idToken = getRandomToken();
+      const newPassword: string = generateRandomPassword();
+      const user = await this.userService.updateUserPwByEmail(
+        resetPwDTO.email,
+        newPassword,
+      );
+
+      if (user) {
+        await this.cacheManager.set(
+          idToken,
+          REDIS_RESET_PW_SESSION,
+          Number(process.env.REDIS_RESET_PW_MAIL_EXPIRE_TIME),
+        ); // expire in 15 minutes
+
+        const mailingParams = new SendChangePwMailRequest(
+          idToken,
+          user.password,
+          user.firstName,
+          user.email,
+          process.env.AUTH_RESET_PASSWORD_URL,
+        );
+
+        const mailingResponse = await new Promise<boolean>((resolve) => {
+          this.mailingClient
+            .emit(
+              GET_MAILING_RESET_PW_RESPONSE_TOPIC,
+              JSON.stringify(mailingParams),
+            )
+            .subscribe((data) => {
+              if (data) {
+                resolve(true);
+              } else {
+                resolve(false);
+              }
+            });
+        });
+
+        if (mailingResponse) {
+          const res: SendEmailResetPwResponseDTO =
+            new SendEmailResetPwResponseDTO();
+          res.message = 'We just sent you an email to reset your password';
+          return res;
+        }
+      }
+    } catch (error) {
+      Logger.error(error.message);
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @HttpCode(202)
@@ -89,7 +157,6 @@ export class UserController {
     }
   }
 
-
   @HasPermission(GET_ALL_PERMISSIONS)
   @UseGuards(AuthorizationGuard)
   @UseGuards(AuthenticationGuard)
@@ -124,5 +191,13 @@ export class UserController {
     } else {
       throw new HttpException('no role found', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  onModuleInit() {
+    const requestPatterns: string[] = [GET_MAILING_RESET_PW_RESPONSE_TOPIC];
+
+    requestPatterns.forEach((topic: string) => {
+      this.mailingClient.subscribeToResponseOf(topic);
+    });
   }
 }

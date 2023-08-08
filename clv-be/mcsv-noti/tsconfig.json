@@ -24,6 +24,7 @@
       "@decorators/*": ["src/decorators/*"],
       "@interceptors/*": ["src/interceptors/*"],
       "@utils/*": ["src/utils/*"],
+      "@mailing/*": ["src/modules/mailing/*"],
       "@validator/*": ["src/validator/*"]
     }
   }

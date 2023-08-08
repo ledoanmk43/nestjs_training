@@ -4,26 +4,30 @@ import {
   RedisTokenDTO,
   RegisterDTO,
 } from '@auth/dto';
-
 import { ValidRedisDTO } from '@auth/dto/auth.response.dto';
 import { AuthenticationGuard } from '@auth/guards';
 import { GoogleOauthGuard } from '@auth/guards/google.guard';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthReq, OAuthReq } from '@common/common.types';
+import { GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC } from '@kafka/constant';
 import {
   Body,
   Controller,
   Get,
+  Inject,
+  OnModuleInit,
   Post,
   Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ClientKafka } from '@nestjs/microservices';
 
 @Controller('auth')
-export class AuthController {
+export class AuthController implements OnModuleInit {
   constructor(
+    @Inject('NOTI_SERVICE') private readonly mailingClient: ClientKafka,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
@@ -72,5 +76,13 @@ export class AuthController {
       request.user.accessToken,
       request.user.id,
     );
+  }
+
+  onModuleInit() {
+    const requestPatterns: string[] = [GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC];
+
+    requestPatterns.forEach((topic: string) => {
+      this.mailingClient.subscribeToResponseOf(topic);
+    });
   }
 }

@@ -6,14 +6,28 @@ import { JWT, JWT_EXP_H, JWT_SECRET } from '@common/app.jwt';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from '@user/user.module';
-import { MailingModule } from '@mailing/mailing.module';
 
 @Module({
   imports: [
-    MailingModule,
     UserModule,
+    ClientsModule.register([
+      {
+        name: 'NOTI_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'notification',
+            brokers: ['localhost:29092'],
+          },
+          consumer: {
+            groupId: 'noti-consumer',
+          },
+        },
+      },
+    ]),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>(JWT_SECRET),

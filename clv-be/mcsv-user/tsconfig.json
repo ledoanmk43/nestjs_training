@@ -28,7 +28,8 @@
       "@user/*": ["src/modules/user/*"],
       "@mailing/*": ["src/modules/mailing/*"],
       "@utils/*": ["src/utils/*"],
-      "@validator/*": ["src/validator/*"]
+      "@validator/*": ["src/validator/*"],
+      "@kafka/*": ["src/kafka/*"]
     }
   }
 }

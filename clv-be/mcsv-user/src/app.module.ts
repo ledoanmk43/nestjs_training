@@ -2,11 +2,6 @@ import { AuthModule } from '@auth/auth.module';
 import config from '@configs/config.default';
 import { providers } from '@configs/config.provider';
 import { TypeOrmConfigService } from '@configs/config.typeorm';
-import { MailingController } from '@mailing/controllers/mailing.controller';
-import { MailingModule } from '@mailing/mailing.module';
-import { MailingService } from '@mailing/services/mailing.service';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -22,17 +17,6 @@ import { AppService } from './app.service';
       host: 'localhost',
       port: process.env.REDIS_PORT,
     }),
-    MailingModule,
-    MailerModule.forRoot({
-      transport: 'smtps://user@domain.com:pass@smtp.domain.com',
-      template: {
-        dir: process.cwd() + '/templates/',
-        adapter: new HandlebarsAdapter(),
-        options: {
-          strict: true,
-        },
-      },
-    }),
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -41,7 +25,7 @@ import { AppService } from './app.service';
     AuthModule,
     UserModule,
   ],
-  controllers: [AppController, MailingController],
-  providers: [AppService, ...providers, MailingService],
+  controllers: [AppController],
+  providers: [AppService, ...providers],
 })
 export class AppModule {}
