@@ -5,7 +5,6 @@ import { MessagePattern } from '@nestjs/microservices';
 @Controller('mailing')
 export class MailingController {
   constructor(
-    // @Inject('USER_SERVICE') private readonly userClient: ClientKafka,
     private readonly mailingService: MailingService,
   ) {}
 
@@ -19,7 +18,4 @@ export class MailingController {
     await this.mailingService.sendNewPwOnSignUpMail(data);
   }
 
-  // onModuleInit() {
-  //   // this.userClient.subscribeToResponseOf('get_user');
-  // }
 }

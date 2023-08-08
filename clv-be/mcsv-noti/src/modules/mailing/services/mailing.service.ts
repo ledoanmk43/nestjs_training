@@ -1,5 +1,4 @@
 import { MailerService } from '@nestjs-modules/mailer';
-
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
@@ -8,7 +7,6 @@ import { Options } from 'nodemailer/lib/smtp-transport';
 @Injectable()
 export class MailingService {
   constructor(
-    // @Inject('USER_SERVICE') private readonly userClient: ClientKafka,
     private readonly configService: ConfigService,
     private readonly mailerService: MailerService,
   ) {}

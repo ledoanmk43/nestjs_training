@@ -1,6 +1,6 @@
-import { GET_MAILING_RESET_PW_RESPONSE_TOPIC } from '@kafka/constant';
 import { SendEmailResetPwResponseDTO } from '@auth/dto/auth.response.dto';
 import { AuthenticationGuard, AuthorizationGuard } from '@auth/guards';
+import { REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
 import {
   GET_ALL_PERMISSIONS,
   RESET_PASSWORD,
@@ -13,6 +13,8 @@ import {
   GET_ALL_USER,
 } from '@common/migration.permission';
 import { HasPermission } from '@decorators/index';
+import { GET_MAILING_RESET_PW_RESPONSE_TOPIC } from '@kafka/constant';
+import { SendChangePwMailRequest } from '@kafka/dto/send-mail-request.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   Body,
@@ -28,16 +30,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
 import { ActivateDto, PermissionDto, ResetPwDTO, ResetPwDto } from '@user/dto';
 import { EditPermissionDto } from '@user/dto/permission.edit.dto';
 import { Permission, User } from '@user/models';
 import { PermissionService, RoleService, UserService } from '@user/services';
-import { In } from 'typeorm';
-import { REDIS_RESET_PW_SESSION } from '@common/app.redis.action';
 import { generateRandomPassword, getRandomToken } from '@utils/index';
 import { Cache } from 'cache-manager';
-import { SendChangePwMailRequest } from '@kafka/dto/send-mail-request.dto';
-import { ClientKafka } from '@nestjs/microservices';
+import { In } from 'typeorm';
 
 @Controller('user')
 export class UserController {
