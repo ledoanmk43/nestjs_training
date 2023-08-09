@@ -73,6 +73,7 @@ export class AuthController implements OnModuleInit, OnApplicationShutdown {
 
   @Post('login')
   login(@Body() body: LoginDTO): Promise<AuthResponseDTO> {
+    console.log(body);
     return this.authService.loginUser(body);
   }
 

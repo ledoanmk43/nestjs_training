@@ -22,7 +22,9 @@ async function bootstrap() {
     },
   });
 
-  await app.startAllMicroservices();
+  await app.startAllMicroservices().then(() => {
+    Logger.log('[Consumer] Kafka of User Service is running!');
+  });
   await app.listen(configService.get<string>(BE_PORT));
   Logger.log(
     '[User Service] is running at: http://localhost:' +
