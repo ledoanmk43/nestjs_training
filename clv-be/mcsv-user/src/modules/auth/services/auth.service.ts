@@ -2,7 +2,10 @@ import { AuthResponseDTO, LoginDTO, RegisterDTO } from '@auth/dto';
 import { JwtPayload } from '@auth/jwt/jwt.payload';
 import { REDIS_CHANGE_PW_SESSION } from '@common/app.redis.action';
 import { OAuthUser } from '@common/common.types';
-import { GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC } from '@kafka/constant';
+import {
+  GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC,
+  NOTI_SERVICE,
+} from '@kafka/constant';
 import { SendChangePwMailRequest } from '@kafka/dto/send-mail-request.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
@@ -26,7 +29,7 @@ export class AuthService {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
-    @Inject('NOTI_SERVICE') private readonly mailingClient: ClientKafka,
+    @Inject(NOTI_SERVICE) private readonly mailingClient: ClientKafka,
     private readonly userService: UserService,
     private readonly roleService: RoleService,
     private readonly jwtService: JwtService,
@@ -39,7 +42,7 @@ export class AuthService {
         where: { email: userDto.email },
         relations: ['roles'],
       });
-      
+
       if (user) {
         // When this email exists in system
         const roleIdList = user.roles.map((role) => {
@@ -69,12 +72,6 @@ export class AuthService {
         // Send mail notification user about new password
         if (user) {
           const idToken = getRandomToken();
-          // Set new redis record
-          await this.cacheManager.set(
-            idToken,
-            REDIS_CHANGE_PW_SESSION,
-            Number(process.env.REDIS_NEW_PW_MAIL_EXPIRE_TIME),
-          ); // expire in 1 day
 
           const mailingParams = new SendChangePwMailRequest(
             idToken,
@@ -98,7 +95,12 @@ export class AuthService {
               });
           });
           if (mailingResponse) {
-            return this.generateAccessToken(user, [savedRole.id]);
+            await this.cacheManager.set(
+              idToken,
+              REDIS_CHANGE_PW_SESSION,
+              Number(process.env.REDIS_NEW_PW_MAIL_EXPIRE_TIME),
+            ); // expire in 1 day
+            // return this.generateAccessToken(user, [savedRole.id]);
           }
         }
       }

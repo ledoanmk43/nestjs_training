@@ -25,6 +25,8 @@ import {
   HttpStatus,
   Inject,
   Logger,
+  OnApplicationShutdown,
+  OnModuleInit,
   Post,
   Put,
   Req,
@@ -40,7 +42,7 @@ import { Cache } from 'cache-manager';
 import { In } from 'typeorm';
 
 @Controller('user')
-export class UserController {
+export class UserController implements OnModuleInit, OnApplicationShutdown {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -79,15 +81,9 @@ export class UserController {
       );
 
       if (user) {
-        await this.cacheManager.set(
-          idToken,
-          REDIS_RESET_PW_SESSION,
-          Number(process.env.REDIS_RESET_PW_MAIL_EXPIRE_TIME),
-        ); // expire in 15 minutes
-
         const mailingParams = new SendChangePwMailRequest(
           idToken,
-          user.password,
+          newPassword,
           user.firstName,
           user.email,
           process.env.AUTH_RESET_PASSWORD_URL,
@@ -109,6 +105,12 @@ export class UserController {
         });
 
         if (mailingResponse) {
+          await this.cacheManager.set(
+            idToken,
+            REDIS_RESET_PW_SESSION,
+            Number(process.env.REDIS_RESET_PW_MAIL_EXPIRE_TIME),
+          ); // expire in 15 minutes
+
           const res: SendEmailResetPwResponseDTO =
             new SendEmailResetPwResponseDTO();
           res.message = 'We just sent you an email to reset your password';
@@ -193,11 +195,17 @@ export class UserController {
     }
   }
 
-  onModuleInit() {
+  async onModuleInit() {
     const requestPatterns: string[] = [GET_MAILING_RESET_PW_RESPONSE_TOPIC];
 
     requestPatterns.forEach((topic: string) => {
       this.mailingClient.subscribeToResponseOf(topic);
     });
+
+    await this.mailingClient.connect();
+  }
+
+  async onApplicationShutdown() {
+    await this.mailingClient.close();
   }
 }

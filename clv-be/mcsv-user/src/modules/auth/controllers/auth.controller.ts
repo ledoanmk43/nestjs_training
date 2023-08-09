@@ -9,12 +9,17 @@ import { AuthenticationGuard } from '@auth/guards';
 import { GoogleOauthGuard } from '@auth/guards/google.guard';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthReq, OAuthReq } from '@common/common.types';
-import { GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC } from '@kafka/constant';
+import {
+  GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC,
+  GOOGLE_REDIRECT_URL,
+  NOTI_SERVICE,
+} from '@kafka/constant';
 import {
   Body,
   Controller,
   Get,
   Inject,
+  OnApplicationShutdown,
   OnModuleInit,
   Post,
   Req,
@@ -25,9 +30,9 @@ import { ConfigService } from '@nestjs/config';
 import { ClientKafka } from '@nestjs/microservices';
 
 @Controller('auth')
-export class AuthController implements OnModuleInit {
+export class AuthController implements OnModuleInit, OnApplicationShutdown {
   constructor(
-    @Inject('NOTI_SERVICE') private readonly mailingClient: ClientKafka,
+    @Inject(NOTI_SERVICE) private readonly mailingClient: ClientKafka,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
@@ -42,8 +47,10 @@ export class AuthController implements OnModuleInit {
     const data = await this.authService.googleLogin(req.user);
     if (data) {
       res.redirect(
-        this.configService.get('GOOGLE_REDIRECT_URL') + data.accessToken,
+        this.configService.get(GOOGLE_REDIRECT_URL) + data.accessToken,
       );
+    } else {
+      res.redirect('http://localhost:3000/login');
     }
   }
 
@@ -78,11 +85,17 @@ export class AuthController implements OnModuleInit {
     );
   }
 
-  onModuleInit() {
+  async onModuleInit() {
     const requestPatterns: string[] = [GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC];
 
     requestPatterns.forEach((topic: string) => {
       this.mailingClient.subscribeToResponseOf(topic);
     });
+
+    await this.mailingClient.connect();
+  }
+
+  async onApplicationShutdown() {
+    await this.mailingClient.close();
   }
 }

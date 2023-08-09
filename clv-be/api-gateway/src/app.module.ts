@@ -11,11 +11,11 @@ import { AppService } from './app.service';
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'user',
-            brokers: ['localhost:9092'],
+            clientId: process.env.KAFKA_USER_CLIENT_ID,
+            brokers: [process.env.KAFKA_BROKER_ID],
           },
           consumer: {
-            groupId: 'user-consumer',
+            groupId: process.env.KAFKA_USER_CONSUMER_GROUP_ID,
           },
         },
       },
@@ -24,11 +24,11 @@ import { AppService } from './app.service';
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'noti',
-            brokers: ['localhost:9092'],
+            clientId: process.env.KAFKA_NOTI_CLIENT_ID,
+            brokers: [process.env.KAFKA_BROKER_ID],
           },
           consumer: {
-            groupId: 'noti-consumer',
+            groupId: process.env.KAFKA_NOTI_CONSUMER_GROUP_ID,
           },
         },
       },
