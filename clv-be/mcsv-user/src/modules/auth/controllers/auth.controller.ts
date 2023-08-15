@@ -10,6 +10,7 @@ import { GoogleOauthGuard } from '@auth/guards/google.guard';
 import { AuthService } from '@auth/services/auth.service';
 import { AuthReq, OAuthReq } from '@common/common.types';
 import {
+  API_GATEWAY,
   GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC,
   GOOGLE_REDIRECT_URL,
   NOTI_SERVICE,
@@ -27,12 +28,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ClientKafka } from '@nestjs/microservices';
+import { ClientKafka, EventPattern } from '@nestjs/microservices';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController implements OnModuleInit, OnApplicationShutdown {
   constructor(
     @Inject(NOTI_SERVICE) private readonly mailingClient: ClientKafka,
+    @Inject(API_GATEWAY) private readonly gatewayClient: ClientKafka,
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
@@ -70,10 +73,14 @@ export class AuthController implements OnModuleInit, OnApplicationShutdown {
   register(@Body() body: RegisterDTO): Promise<AuthResponseDTO> {
     return this.authService.registerUser(body);
   }
-
+  
   @Post('login')
-  login(@Body() body: LoginDTO): Promise<AuthResponseDTO> {
-    console.log(body);
+  @EventPattern('GET_M_USER_RESPONSE_TOPIC')
+  login(
+    @Body() body: LoginDTO,
+    @Req() request: Request,
+  ): Promise<AuthResponseDTO> {
+    console.log(request);
     return this.authService.loginUser(body);
   }
 

@@ -32,7 +32,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
+import { ClientKafka, EventPattern } from '@nestjs/microservices';
 import { ActivateDto, PermissionDto, ResetPwDTO, ResetPwDto } from '@user/dto';
 import { EditPermissionDto } from '@user/dto/permission.edit.dto';
 import { Permission, User } from '@user/models';
@@ -89,20 +89,22 @@ export class UserController implements OnModuleInit, OnApplicationShutdown {
           process.env.AUTH_RESET_PASSWORD_URL,
         );
 
-        const mailingResponse = await new Promise<boolean>((resolve) => {
-          this.mailingClient
-            .emit(
-              GET_MAILING_RESET_PW_RESPONSE_TOPIC,
-              JSON.stringify(mailingParams),
-            )
-            .subscribe((data) => {
-              if (data) {
-                resolve(true);
-              } else {
-                resolve(false);
-              }
-            });
-        });
+        const mailingResponse: boolean = await new Promise<boolean>(
+          (resolve) => {
+            this.mailingClient
+              .emit(
+                GET_MAILING_RESET_PW_RESPONSE_TOPIC,
+                JSON.stringify(mailingParams),
+              )
+              .subscribe((data) => {
+                if (data) {
+                  resolve(true);
+                } else {
+                  resolve(false);
+                }
+              });
+          },
+        );
 
         if (mailingResponse) {
           await this.cacheManager.set(

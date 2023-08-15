@@ -20,7 +20,10 @@
     "paths": {
       "@src/*": ["src/*"],
       "@configs/*": ["src/configs/*"],
-      "@common/*": ["src/common/*"]
+      "@common/*": ["src/common/*"],
+      "@interceptors/*": ["src/interceptors/*"],
+      "@utils/*": ["src/utils/*"],
+      "@kafka/*": ["src/kafka/*"]
     }
   }
 }

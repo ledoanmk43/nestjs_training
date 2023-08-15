@@ -7,3 +7,5 @@ export const GET_MAILING_ON_SIGNUP_RESPONSE_TOPIC: string =
 export const GOOGLE_REDIRECT_URL: string = 'GOOGLE_REDIRECT_URL';
 
 export const NOTI_SERVICE: string = 'NOTI_SERVICE';
+
+export const API_GATEWAY: string = 'API_GATEWAY';

@@ -1,4 +1,4 @@
-import { BE_PORT } from '@common/app.constants';
+import { BE_PORT as USER_PORT } from '@common/app.constants';
 import { CorsOptions } from '@configs/config.cors';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -25,10 +25,10 @@ async function bootstrap() {
   await app.startAllMicroservices().then(() => {
     Logger.log('[Consumer] Kafka of User Service is running!');
   });
-  await app.listen(configService.get<string>(BE_PORT));
+  await app.listen(configService.get<string>(USER_PORT));
   Logger.log(
     '[User Service] is running at: http://localhost:' +
-      configService.get<string>(BE_PORT),
+      configService.get<string>(USER_PORT),
   );
 }
 bootstrap();

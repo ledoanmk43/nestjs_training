@@ -4,9 +4,7 @@ import { MessagePattern } from '@nestjs/microservices';
 
 @Controller('mailing')
 export class MailingController {
-  constructor(
-    private readonly mailingService: MailingService,
-  ) {}
+  constructor(private readonly mailingService: MailingService) {}
 
   @MessagePattern('GET_MAILING_RESET_PW_RESPONSE_TOPIC')
   async sendResetPwMail(data: any): Promise<void> {
@@ -17,5 +15,4 @@ export class MailingController {
   async sendNewPwOnSignUpMail(data: any): Promise<void> {
     await this.mailingService.sendNewPwOnSignUpMail(data);
   }
-
 }

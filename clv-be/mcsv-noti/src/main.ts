@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
-import { CorsOptions } from './configs/config.cors';
+import { CorsOptions } from '@configs/config.cors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,7 +22,9 @@ async function bootstrap() {
     },
   });
 
-  await app.startAllMicroservices();
+  await app.startAllMicroservices().then(() => {
+    Logger.log('[Consumer] Kafka of Notification Service is running!');
+  });
   await app.listen(configService.get<string>(NOTI_PORT));
   Logger.log(
     '[Notification Service] is running at: http://localhost:' +

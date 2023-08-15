@@ -61,6 +61,7 @@ export class MailingService {
           link: data.redirectUrl + data.email + '&idToken=' + data.idToken,
         },
       });
+      Logger.log('An email was sent to reset password');
     } catch (error) {
       Logger.error(error.message);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -83,6 +84,7 @@ export class MailingService {
           link: data.redirectUrl + data.email + '&idToken=' + data.idToken,
         },
       });
+      Logger.log('A welcome email was sent');
     } catch (error) {
       Logger.error(error.message);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

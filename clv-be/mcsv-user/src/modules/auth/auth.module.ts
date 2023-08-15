@@ -3,7 +3,7 @@ import { JwtStrategy } from '@auth/jwt/jwt.strategy';
 import { AuthService } from '@auth/services/auth.service';
 import { GoogleStrategy } from '@auth/strategies/google.strategy';
 import { JWT, JWT_EXP_H, JWT_SECRET } from '@common/app.jwt';
-import { NOTI_SERVICE } from '@kafka/constant/index';
+import { API_GATEWAY, NOTI_SERVICE } from '@kafka/constant/index';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -15,6 +15,19 @@ import { UserModule } from '@user/user.module';
   imports: [
     UserModule,
     ClientsModule.register([
+      {
+        name: API_GATEWAY,
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: process.env.KAFKA_GATEWAY_CLIENT_ID,
+            brokers: [process.env.KAFKA_BROKER_ID],
+          },
+          consumer: {
+            groupId: process.env.KAFKA_GATEWAY_CONSUMER_GROUP_ID,
+          },
+        },
+      },
       {
         name: NOTI_SERVICE,
         transport: Transport.KAFKA,
